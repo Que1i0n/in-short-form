@@ -13,8 +13,9 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "history2.md",
+                "file": "Home.md",
                 "mode": "source",
+                "backlinks": true,
                 "source": false
               }
             }
@@ -94,7 +95,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "history2.md",
+                "file": "Home.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -111,7 +112,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "history2.md",
+                "file": "Home.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -134,7 +135,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "history2.md"
+                "file": "Home.md"
               }
             }
           }
@@ -147,8 +148,8 @@
   },
   "active": "00301eff3c27f5da",
   "lastOpenFiles": [
-    "Home.md",
     "history2.md",
+    "Home.md",
     "ChatGPTAlgo_log5.md",
     "history.md",
     "Algorithm-0.1.md",
