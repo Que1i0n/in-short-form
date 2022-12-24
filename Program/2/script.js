@@ -9,95 +9,77 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d");
 
-//Turn phrases to Colour Schemes
-function sentenceToHexColors(sentence) {
-  var hexColors = [];
-  var chars = sentence.split('');
-  var numDigits = 0;
-  chars.forEach(function(char) {
-    var asciiCode = char.charCodeAt(0);
-    var hexCode = asciiCode.toString(16);
+// Read phrases from phrases.txt
+function getPhrases() {
+  const reading = [];
+  const txtFile = "phrases.txt";
+  const rawFile = new XMLHttpRequest();
+  rawFile.open("GET", txtFile, false);
+  rawFile.onreadystatechange = function() {
+    if (rawFile.readyState === 4) {
+      if (rawFile.status === 200 || rawFile.status == 0) {
+        const textData = rawFile.responseText;
+        const rows = textData.split('\n');
+        rows.forEach(row => {
+          const items = row.split('>');
+          items.forEach(item => {
+            reading.push(item);
+          });
+        });
+      }
+    }
+  };
+  rawFile.send(null);
+  return reading;
+}
 
+// Convert a sentence into an array of hexadecimal colors
+function sentenceToHexColors(sentence) {
+  const hexColors = [];
+  const chars = sentence.split('');
+  let numDigits = 0;
+  chars.forEach(char => {
+    const asciiCode = char.charCodeAt(0);
+    let hexCode = asciiCode.toString(16);
     while (hexCode.length < 6 && numDigits + 1 < chars.length) {
       hexCode = hexCode + chars[numDigits + 1].charCodeAt(0).toString(16);
       numDigits += 2;
     }
-
     if (hexCode.length === 6) {
       hexColors.push('#' + hexCode);
     }
   });
-
   return hexColors;
 }
-//Read phrases from phrases.txt
-function phrases() {
-    var reading = [];
-    var txtFile = "phrases.txt";
 
-    // read text file using XMLHttpRequest
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", txtFile, false);
-    rawFile.onreadystatechange = function() {
-        if (rawFile.readyState === 4) {
-            if (rawFile.status === 200 || rawFile.status == 0) {
-                var textData = rawFile.responseText;
-                var rows = textData.split('\n');
-                rows.forEach(function(row) {
-                    var items = row.split('>');
-                    items.forEach(function(item) {
-                        reading.push(item);
-                    });
-                });
-            }
-        }
-    };
-    rawFile.send(null);
-    // assign the reading array to the Phrases variable
-    Phrases = reading;
-    // return the Phrases array
-    return Phrases;
+// Generate a random selection of colors from the given array of hexadecimal colors
+function getRandomColors(colors, numColors) {
+  const shortenedColors = [];
+  for (let i = 0; i < numColors; i++) {
+    const index = Math.floor(Math.random() * colors.length);
+    shortenedColors.push(colors[index]);
+  }
+  return [...new Set(shortenedColors)]; // remove duplicates
 }
-//creates proportions of string lengths to total strings left
+
+// Calculate the normalized lengths of the given strings as proportions
 function getStringLengths(strings) {
-  // total length of all strings
   const totalLength = strings.reduce((sum, str) => sum + str.length, 0);
-
-  // sum of proportions
   const proportionSum = strings.reduce((sum, str) => sum + (str.length / totalLength), 0);
-
-  // array of normalized proportions multiplied by 100 to express as percentages
   return strings.map(str => (str.length / totalLength) / proportionSum * 100);
 }
-phrases().forEach(function(phrase) {
-  var hexColors = sentenceToHexColors(phrase); // get array of colors for phrase
-  PropPalle.push(hexColors);
-  var numColors = 15; // number of colors to keep in shortened array
-  var shortenedColors = []; // array to hold shortened colors
 
-  // pick colors randomly from original array and add to shortened array
-  for (var i = 0; i < numColors; i++) {
-    // check if hexColors is defined and in the correct scope
-    if (typeof hexColors !== 'undefined') {
-      // use hexColors array if it exists
-      var index = Math.floor(Math.random() * hexColors.length);
-      shortenedColors.push(hexColors[index]);
-    } else {
-      // use colors array returned by sentenceToHexColors function
-      var index = Math.floor(Math.random() * hexColors.length);
-      shortenedColors.push(hexColors[index]);
-    }
-  }
-
-  shortenedColors = [...new Set(shortenedColors)];
+const Phrases = getPhrases();
+const Pallettes = [];
+Phrases.forEach(phrase => {
+  const hexColors = sentenceToHexColors(phrase);
+  const shortenedColors = getRandomColors(hexColors, 15);
   Pallettes.push(shortenedColors);
 });
-//logging result to check
-const phraseProportions = Phrases;
-const lengths = getStringLengths(phraseProportions);
-ProportionChance = lengths
+const ProportionChance = getStringLengths(Phrases);
 
-console.log(Pallettes) 
+console.log(Pallettes);
+
 
 function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
   // Calculate the total percentage of the ProportionChance array
