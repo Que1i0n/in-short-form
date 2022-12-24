@@ -1,7 +1,7 @@
-var Phrases = [];
-var Pallettes = [];
-var PropPalle = [];
-var ProportionChance = [];
+// var Phrases = [];
+// var Pallettes = [];
+// var PropPalle = [];
+// var ProportionChance = [];
 
 
 const canvas = document.getElementById("canvas");
@@ -148,7 +148,7 @@ function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
           const color = colors[Math.floor(Math.random() * colors.length)];
   
           // Set the fill style and draw a 1x1 pixel at the current coordinates
-          ctx.globalCompositeOperation = "multiply";
+          ctx.globalCompositeOperation = "divide";
           ctx.fillStyle = color;
           ctx.fillRect(x, y, 1, 1);
           ctx.globalCompositeOperation = "source-over";
