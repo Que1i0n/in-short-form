@@ -3,6 +3,7 @@
 // var PropPalle = [];
 // var ProportionChance = [];
 
+
 const canvas = document.getElementById("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -55,7 +56,7 @@ function sentenceToHexColors(sentence) {
 function getRandomColors(colors, numColors) {
   const shortenedColors = [];
   for (let i = 0; i < numColors; i++) {
-    const index = Math.floor(Math.rand * colors.length);
+    const index = Math.floor(Math.random() * colors.length);
     shortenedColors.push(colors[index]);
   }
   return [...new Set(shortenedColors)]; // remove duplicates
@@ -77,7 +78,7 @@ Phrases.forEach(phrase => {
 });
 const ProportionChance = getStringLengths(Phrases);
 
-console.log(Phrases);
+console.log(Pallettes);
 
 
 function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
@@ -107,7 +108,7 @@ function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
       // Loop through the y-coordinates of the segment
       for (let y = i * height; y < (i + 1) * height; y++) {
         // Choose a random color from the palette
-        const color = colors[Math.floor(Math.rand * colors.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
 
         // Set the fill style and draw a 1x1 pixel at the current coordinates
         ctx.fillStyle = color;
@@ -138,7 +139,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
     const width = segmentHeight * parseInt(ProportionChance[i]);
 
     // Choose a random blend mode from the array
-    const blendMode = blendModes[Math.floor(Math.rand * blendModes.length)];
+    const blendMode = blendModes[Math.floor(Math.random() * blendModes.length)];
     
     // Set the blend mode for the current segment
     ctx.globalCompositeOperation = blendMode;
@@ -148,7 +149,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
       // Loop through the y-coordinates of the segment
       for (let x = i * width; x < (i + 1) * width; x++) {
         // Choose a random color from the palette
-        const color = colors[Math.floor(Math.rand * colors.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
 
         // Set the fill style and draw a 1x1 pixel at the current coordinates
         ctx.fillStyle = color;
@@ -158,7 +159,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
   }
 }
 
-const angle = (ProportionChance[0]) * 360;
+const angle = (ProportionChance[0] / 10) * 360;
 ctx.rotate(angle);
 function colorCanvasAngled(ctx, Pallettes, ProportionChance) {
 const totalPercentage = ProportionChance.reduce((sum, percentage) => {
@@ -170,7 +171,7 @@ const colors = Pallettes[i];
 const y = i * segmentHeight;
 const width = segmentHeight * parseInt(ProportionChance[i]);
 const angle = (ProportionChance[i] / totalPercentage) * 360;
-const blendMode = blendModes[Math.floor(Math.rand * blendModes.length)];
+const blendMode = blendModes[Math.floor(Math.random() * blendModes.length)];
 
 // Set the blend mode for the current segment
 ctx.globalCompositeOperation = blendMode;
@@ -178,7 +179,7 @@ ctx.globalCompositeOperation = blendMode;
 ctx.rotate(angle);
 for (let y = 0; y < canvas.width; y++) {
   for (let x = i * width; x < (i + 1) * width; x++) {
-    const color = colors[Math.floor(Math.rand * colors.length)];
+    const color = colors[Math.floor(Math.random() * colors.length)];
     ctx.fillStyle = color;
     ctx.fillRect(x, y, 1, 1);
   }
@@ -193,5 +194,5 @@ colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
 //rotateCanvas(canvas, ProportionChance);
 
-window.addEventListener("resize", () => colorCanvasHorizontal(canvas));
+window.addEventListener("resize", () => colorCanvas(canvas));
 
