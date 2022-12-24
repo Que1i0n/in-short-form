@@ -5,8 +5,8 @@
 
 
 const canvas = document.getElementById("canvas");
-canvas.width = 2000;
-canvas.height = 2000;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d");
 
 // Read phrases from phrases.txt
@@ -73,7 +73,7 @@ const Phrases = getPhrases();
 const Pallettes = [];
 Phrases.forEach(phrase => {
   const hexColors = sentenceToHexColors(phrase);
-  const shortenedColors = getRandomColors(hexColors, 5);
+  const shortenedColors = getRandomColors(hexColors, 15);
   Pallettes.push(shortenedColors);
 });
 const ProportionChance = getStringLengths(Phrases);
@@ -94,45 +94,29 @@ function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
   // Calculate the height of each segment based on the total percentage
   const segmentHeight = canvas.height / totalPercentage; 
 
-  // Initialize variables to keep track of the current row and palette
-  let currentRow = 0;
-  let currentPalette = 0;
+  // Loop through each segment in the palettes array
+  for (let i = 0; i < Pallettes.length; i++) {
+    // Split the palette into an array of colors
+    const colors = Pallettes[i];
 
-
-  function drawNextRow() {
-    // Calculate the y-coordinate and height of the current segment
-    const y = currentPalette * segmentHeight;
-    const height = segmentHeight * parseInt(ProportionChance[currentPalette]);
-
-    // Choose the current palette of colors
-    const colors = Pallettes[currentPalette];
+    // Calculate the y-coordinate and height of the segment
+    const y = i * segmentHeight;
+    const height = segmentHeight * parseInt(ProportionChance[i]);
 
     // Loop through the x-coordinates of the canvas
     for (let x = 0; x < canvas.width; x++) {
-      // Choose a random color from the palette
-      const color = colors[Math.floor(fxrand() * colors.length)];
+      // Loop through the y-coordinates of the segment
+      for (let y = i * height; y < (i + 1) * height; y++) {
+        // Choose a random color from the palette
+        const color = colors[Math.floor(fxrand() * colors.length)];
 
-      // Set the fill style and draw a 1x1 pixel at the current coordinates
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y + currentRow, 1, 1);
-    }
+        // Set the fill style and draw a 1x1 pixel at the current coordinates
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
 
-    // Increment the current row and palette if necessary
-    currentRow++;
-    if (currentRow >= height) {
-      currentPalette++;
-    }
-
-    // If there are more rows to draw, schedule the next frame
-    if (currentPalette < Pallettes.length) {
-      requestAnimationFrame(drawNextRow);
     }
   }
-
-  // Start the animation loop
-  requestAnimationFrame(drawNextRow);
-}
-
+  }}
 
   const blendModes = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
 
@@ -175,10 +159,9 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
   }
 }
 
-
+const angle = (ProportionChance[0] / fxrand()) * 360;
+ctx.rotate(angle);
 function colorCanvasAngled(ctx, Pallettes, ProportionChance) {
-  const angle = (ProportionChance[0] / fxrand()) * 360;
-  ctx.rotate(angle);
 const totalPercentage = ProportionChance.reduce((sum, percentage) => {
 return sum + parseInt(percentage);
 }, 0);
@@ -206,8 +189,8 @@ ctx.rotate(-angle);
 }
 
 colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-//colorCanvasVertical(ctx, Pallettes, ProportionChance);
-//colorCanvasAngled(ctx, Pallettes, ProportionChance)
+colorCanvasVertical(ctx, Pallettes, ProportionChance);
+colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
 //rotateCanvas(canvas, ProportionChance);
 
