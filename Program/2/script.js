@@ -81,6 +81,11 @@ const ProportionChance = getStringLengths(Phrases);
 console.log(Pallettes);
 
 
+// -----
+// Colour noise stuff
+
+
+
 function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
   // Calculate the total percentage of the ProportionChance array
   if (!Array.isArray(ProportionChance)) {
@@ -159,6 +164,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
   }
 }
 
+
 const angle = (ProportionChance[0] / fxrand()) * 360;
 ctx.rotate(angle);
 function colorCanvasAngled(ctx, Pallettes, ProportionChance) {
@@ -187,6 +193,10 @@ for (let y = 0; y < canvas.width; y++) {
 ctx.rotate(-angle);
 }
 }
+
+
+
+
 
 colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 colorCanvasVertical(ctx, Pallettes, ProportionChance);
