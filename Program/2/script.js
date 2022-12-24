@@ -118,48 +118,79 @@ function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
   }
   }}
 
-  function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
-    // Calculate the total percentage of the ProportionChance array
-    if (!Array.isArray(ProportionChance)) {
-      // If ProportionChance is not an array, make it one
-      ProportionChance = [ProportionChance];
-    }
-    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-      return sum + parseInt(percentage);
-    }, 0);
-  
-    // Calculate the height of each segment based on the total percentage
-    const segmentHeight = canvas.width / totalPercentage; 
-  
-    // Loop through each segment in the palettes array
-    for (let i = 0; i < Pallettes.length; i++) {
-      // Split the palette into an array of colors
-      const colors = Pallettes[i];
-  
-      // Calculate the y-coordinate and height of the segment
-      const y = i * segmentHeight;
-      const width = segmentHeight * parseInt(ProportionChance[i]);
-  
-      // Loop through the x-coordinates of the canvas
-      for (let y = 0; y < canvas.width; y++) {
-        // Loop through the y-coordinates of the segment
-        for (let x = i * width; x < (i + 1) * width; x++) {
-          // Choose a random color from the palette
-          const color = colors[Math.floor(Math.random() * colors.length)];
-  
-          // Set the fill style and draw a 1x1 pixel at the current coordinates
-          ctx.globalCompositeOperation = "divide";
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, 1, 1);
-          ctx.globalCompositeOperation = "source-over";
+  const blendModes = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
+
+function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
+  // Calculate the total percentage of the ProportionChance array
+  if (!Array.isArray(ProportionChance)) {
+    // If ProportionChance is not an array, make it one
+    ProportionChance = [ProportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+
+  // Calculate the height of each segment based on the total percentage
+  const segmentHeight = canvas.width / totalPercentage; 
+
+  // Loop through each segment in the palettes array
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];    const y = i * segmentHeight;
+    const width = segmentHeight * parseInt(ProportionChance[i]);
+
+    // Choose a random blend mode from the array
+    const blendMode = blendModes[Math.floor(Math.random() * blendModes.length)];
+    
+    // Set the blend mode for the current segment
+    ctx.globalCompositeOperation = blendMode;
+
+    // Loop through the x-coordinates of the canvas
+    for (let y = 0; y < canvas.width; y++) {
+      // Loop through the y-coordinates of the segment
+      for (let x = i * width; x < (i + 1) * width; x++) {
+        // Choose a random color from the palette
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        // Set the fill style and draw a 1x1 pixel at the current coordinates
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
       }
     }
-    }}
+  }
+}
 
+const angle = (ProportionChance[0]) * 360;
+ctx.rotate(angle);
+function colorCanvasAngled(ctx, Pallettes, ProportionChance) {
+const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+return sum + parseInt(percentage);
+}, 0);
+const segmentHeight = canvas.width / totalPercentage;
+for (let i = 0; i < Pallettes.length; i++) {
+const colors = Pallettes[i];
+const y = i * segmentHeight;
+const width = segmentHeight * parseInt(ProportionChance[i]);
+const angle = (ProportionChance[i] / totalPercentage) * 360;
+const blendMode = blendModes[Math.floor(Math.random() * blendModes.length)];
 
+// Set the blend mode for the current segment
+ctx.globalCompositeOperation = blendMode;
+
+ctx.rotate(angle);
+for (let y = 0; y < canvas.width; y++) {
+  for (let x = i * width; x < (i + 1) * width; x++) {
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, 1, 1);
+  }
+}
+ctx.rotate(-angle);
+}
+}
 
 colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 colorCanvasVertical(ctx, Pallettes, ProportionChance);
+colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
 //rotateCanvas(canvas, ProportionChance);
 
