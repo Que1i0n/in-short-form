@@ -78,7 +78,7 @@ Phrases.forEach(phrase => {
 });
 const ProportionChance = getStringLengths(Phrases);
 
-console.log(Pallettes);
+console.log(Phrases);
 
 
 function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
@@ -192,7 +192,5 @@ colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 colorCanvasVertical(ctx, Pallettes, ProportionChance);
 colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
-//rotateCanvas(canvas, ProportionChance);
 
-window.addEventListener("resize", () => colorCanvas(canvas));
 
