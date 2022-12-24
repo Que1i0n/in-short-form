@@ -209,5 +209,7 @@ colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 //colorCanvasVertical(ctx, Pallettes, ProportionChance);
 //colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
+//rotateCanvas(canvas, ProportionChance);
 
+window.addEventListener("resize", () => colorCanvas(canvas));
 
