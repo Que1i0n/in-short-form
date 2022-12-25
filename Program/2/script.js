@@ -7,8 +7,11 @@
 const canvas = document.getElementById("canvas");
 // canvas.width = 500;  // or any other value for the side length of the square
 // canvas.height = 500;
-canvas.width = 2160;  // 4K resolution
-canvas.height = 2160;
+canvas.width = 2732; 
+canvas.height = 1156;
+
+// canvas.width = 683;
+// canvas.height = 289;
 
 const ctx = canvas.getContext("2d");
 
@@ -212,7 +215,8 @@ function downloadCanvas(fileName) {
 
 
 function draw() {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 50; i++) {
+    console.log(fxhash)
     colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical(ctx, Pallettes, ProportionChance);
     colorCanvasAngled(ctx, Pallettes, ProportionChance);
