@@ -77,10 +77,12 @@ const Phrases = getPhrases();
 const Pallettes = [];
 Phrases.forEach(phrase => {
   const hexColors = sentenceToHexColors(phrase);
-  const shortenedColors = getRandomColors(hexColors, 3);
+  const shortenedColors = getRandomColors(hexColors, 3);  // <--- colour pallette depth
   Pallettes.push(shortenedColors);
 });
 const ProportionChance = getStringLengths(Phrases);
+
+
 
 console.log(Pallettes);
 
@@ -167,7 +169,11 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
 // ctx.rotate(angle);
 
 function colorCanvasAngled(ctx, Pallettes, ProportionChance) {
-const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+for (let i = 0; i < ProportionChance.length; i++) {
+const angle = (ProportionChance[i] / Math.random()) * 360;
+ctx.rotate(angle);
+
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
 return sum + parseInt(percentage);
 }, 0);
 const segmentHeight = canvas.width / totalPercentage;
@@ -191,7 +197,7 @@ for (let y = 0; y < canvas.width; y++) {
   }
 }
 ctx.rotate(-angle);
-}
+}}
 }
 
 
@@ -215,10 +221,8 @@ function downloadCanvas() {
 }
 
 
-function draw() {
-for (i = 0; i < 5; i++){
 
-  colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 colorCanvasVertical(ctx, Pallettes, ProportionChance);
 colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
@@ -227,7 +231,3 @@ colorCanvasAngled(ctx, Pallettes, ProportionChance)
 ctx.scale(4, 4);
 // call the downloadCanvas function after the canvas has finished drawing
 downloadCanvas();
-}}
-
-
-draw()
