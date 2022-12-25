@@ -150,8 +150,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
     // Choose a random blend mode from the array
     const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
-                                                                                                                console.log(blendMode);
-    
+   
     // Set the blend mode for the current segment
     ctx.globalCompositeOperation = blendMode;
 
@@ -168,6 +167,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
       }
     }
   }
+  console.log(blendMode);
 }
 
 // const angle = (ProportionChance[i] / prngno) * 360;
@@ -233,21 +233,15 @@ function draw(ctx, Pallettes, ProportionChance) {
 
 colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 colorCanvasVertical(ctx, Pallettes, ProportionChance);
-colorCanvasAngled(ctx, Pallettes, ProportionChance)
+colorCanvasAngled(ctx, Pallettes, ProportionChance);
 ctx.scale(4, 4);
 downloadCanvas(fxhash);}
 //}
 
-async function drawAndDownload(ctx, Pallettes, ProportionChance) {
-  // call the draw function
-  draw(ctx, Pallettes, ProportionChance);
-  // wait for the downloadCanvas function to complete before logging "Done!"
-  await downloadCanvas(fxhash);
-  console.log("Done!");
-}
+
 
 // call the drawAndDownload function
-drawAndDownload(ctx, Pallettes, ProportionChance).then(() => {
+draw(ctx, Pallettes, ProportionChance).then(() => {
   console.log("File downloaded successfully");
 });
 
