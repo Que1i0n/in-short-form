@@ -5,9 +5,13 @@
 
 
 const canvas = document.getElementById("canvas");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// canvas.width = 500;  // or any other value for the side length of the square
+// canvas.height = 500;
+canvas.width = 2160;  // 4K resolution
+canvas.height = 2160;
+
 const ctx = canvas.getContext("2d");
+
 
 // Read phrases from phrases.txt
 function getPhrases() {
@@ -73,7 +77,7 @@ const Phrases = getPhrases();
 const Pallettes = [];
 Phrases.forEach(phrase => {
   const hexColors = sentenceToHexColors(phrase);
-  const shortenedColors = getRandomColors(hexColors, 15);
+  const shortenedColors = getRandomColors(hexColors, 3);
   Pallettes.push(shortenedColors);
 });
 const ProportionChance = getStringLengths(Phrases);
@@ -188,11 +192,39 @@ ctx.rotate(-angle);
 }
 }
 
-colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-colorCanvasVertical(ctx, Pallettes, ProportionChance);
-colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
-//rotateCanvas(canvas, ProportionChance);
 
-window.addEventListener("resize", () => colorCanvas(canvas));
+
+
+function downloadCanvas(fileName) {
+  // get the canvas element and its context
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  // set the download link
+  const link = document.createElement("a");
+  link.download = fileName;
+  link.href = canvas.toDataURL();
+
+  // trigger the download
+  link.click();
+}
+
+
+function draw() {
+  for (let i = 0; i < 5; i++) {
+    colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+    colorCanvasVertical(ctx, Pallettes, ProportionChance);
+    colorCanvasAngled(ctx, Pallettes, ProportionChance);
+  
+    ctx.scale(1, 1);
+    // call the downloadCanvas function
+    downloadCanvas(fxhash);
+  
+    // reload the page to reset the canvas
+    location.reload();
+  }
+}
+
+draw();
 
