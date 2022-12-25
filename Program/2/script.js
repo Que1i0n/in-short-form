@@ -7,11 +7,8 @@
 const canvas = document.getElementById("canvas");
 // canvas.width = 500;  // or any other value for the side length of the square
 // canvas.height = 500;
-canvas.width = 2732; 
-canvas.height = 1156;
-
-// canvas.width = 683;
-// canvas.height = 289;
+canvas.width = 3840;  // 4K resolution
+canvas.height = 2160;
 
 const ctx = canvas.getContext("2d");
 
@@ -63,7 +60,7 @@ function sentenceToHexColors(sentence) {
 function getRandomColors(colors, numColors) {
   const shortenedColors = [];
   for (let i = 0; i < numColors; i++) {
-    const index = Math.floor(fxrand() * colors.length);
+    const index = Math.floor(Math.random() * colors.length);
     shortenedColors.push(colors[index]);
   }
   return [...new Set(shortenedColors)]; // remove duplicates
@@ -115,7 +112,7 @@ function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
       // Loop through the y-coordinates of the segment
       for (let y = i * height; y < (i + 1) * height; y++) {
         // Choose a random color from the palette
-        const color = colors[Math.floor(fxrand() * colors.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
 
         // Set the fill style and draw a 1x1 pixel at the current coordinates
         ctx.fillStyle = color;
@@ -146,7 +143,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
     const width = segmentHeight * parseInt(ProportionChance[i]);
 
     // Choose a random blend mode from the array
-    const blendMode = blendModes[Math.floor(fxrand() * blendModes.length)];
+    const blendMode = blendModes[Math.floor(Math.random() * blendModes.length)];
     
     // Set the blend mode for the current segment
     ctx.globalCompositeOperation = blendMode;
@@ -156,7 +153,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
       // Loop through the y-coordinates of the segment
       for (let x = i * width; x < (i + 1) * width; x++) {
         // Choose a random color from the palette
-        const color = colors[Math.floor(fxrand() * colors.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
 
         // Set the fill style and draw a 1x1 pixel at the current coordinates
         ctx.fillStyle = color;
@@ -166,8 +163,9 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance) {
   }
 }
 
-const angle = (ProportionChance[0] / fxrand()) * 360;
-ctx.rotate(angle);
+// const angle = (ProportionChance[i] / Math.random()) * 360;
+// ctx.rotate(angle);
+
 function colorCanvasAngled(ctx, Pallettes, ProportionChance) {
 const totalPercentage = ProportionChance.reduce((sum, percentage) => {
 return sum + parseInt(percentage);
@@ -178,15 +176,16 @@ const colors = Pallettes[i];
 const y = i * segmentHeight;
 const width = segmentHeight * parseInt(ProportionChance[i]);
 const angle = (ProportionChance[i] / totalPercentage) * 360;
-const blendMode = blendModes[Math.floor(fxrand() * blendModes.length)];
+const blendMode = blendModes[Math.floor(Math.random() * blendModes.length)];
 
 // Set the blend mode for the current segment
 ctx.globalCompositeOperation = blendMode;
 
-ctx.rotate(angle);
+
 for (let y = 0; y < canvas.width; y++) {
   for (let x = i * width; x < (i + 1) * width; x++) {
-    const color = colors[Math.floor(fxrand() * colors.length)];
+    ctx.rotate(angle);
+    const color = colors[Math.floor(Math.random() * colors.length)];
     ctx.fillStyle = color;
     ctx.fillRect(x, y, 1, 1);
   }
@@ -198,37 +197,37 @@ ctx.rotate(-angle);
 
 
 
+function downloadCanvas() {
+  // get the canvas content as a data URL
+  const dataURL = canvas.toDataURL();
 
-function downloadCanvas(fileName) {
-  // get the canvas element and its context
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-
-  // set the download link
+  // create a link element and set its href to the data URL
   const link = document.createElement("a");
-  link.download = fileName;
-  link.href = canvas.toDataURL();
+  link.href = dataURL;
+  link.download = "canvas.png";
 
-  // trigger the download
+  // add the link to the document and click it to trigger the download
+  document.body.appendChild(link);
   link.click();
+
+  // remove the link from the document
+  document.body.removeChild(link);
 }
 
 
 function draw() {
-  for (let i = 0; i < 50; i++) {
-    console.log(fxhash)
-    colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-    colorCanvasVertical(ctx, Pallettes, ProportionChance);
-    colorCanvasAngled(ctx, Pallettes, ProportionChance);
-  
-    ctx.scale(1, 1);
-    // call the downloadCanvas function
-    downloadCanvas(fxhash);
-  
-    // reload the page to reset the canvas
-    location.reload();
-  }
-}
+for (i = 0; i < 5; i++){
 
-draw();
+  colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+colorCanvasVertical(ctx, Pallettes, ProportionChance);
+colorCanvasAngled(ctx, Pallettes, ProportionChance)
 
+
+
+ctx.scale(4, 4);
+// call the downloadCanvas function after the canvas has finished drawing
+downloadCanvas();
+}}
+
+
+draw()
