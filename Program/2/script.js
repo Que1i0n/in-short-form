@@ -66,8 +66,8 @@ function getRandomColors(colors, numColors) {
 	const shortenedColors = [];
 
 	for (let i = 0; i < numColors; i++) {
-		const index = Math.floor(prngno * colors.length);
-		shortenedColors.push(colors[index]);
+	//	const index = prngno * colors.length;
+		shortenedColors.push(colors/*[index]*/);
   	}
 
   	return [...new Set(shortenedColors)]; // remove duplicates
@@ -165,7 +165,6 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
       }
     }
   }
-  console.log(blendMode);
 }
 
 // const angle = (ProportionChance[i] / prngno) * 360;
@@ -187,20 +186,23 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
 		
 		// this should throw an error if totalPercentage equals 0?
 		const segmentHeight = canvas.width / totalPercentage;
+		const width = segmentHeight * parseInt(ProportionChance[i]);
 
 		// go through each colour in Pallettes
 		for (let i = 0; i < Pallettes.length; i++) {
 			const colors = Pallettes[i];
 			
 			// angle is being redefined here, using totalPercentage instead of random number, thus angle = Infinity
-			const angle = (ProportionChance[i] / totalPercentage) * 360;
+			// const angle = (ProportionChance[i] / totalPercentage) * 360;
+			const angle = ProportionChance[i] * 360;
+
 
 			// Set the blend mode for the current segment (now defined at the bottom and passed to this function as a parameter)
 			ctx.globalCompositeOperation = blendMode;
 
 
 			for (let y = 0; y < canvas.width; y++) {
-  				for (let x = i * canvas.width; x < (i + 1) * width; x++) {
+  				for (let x = i * width; x < (i + 1) * width; x++) {
 					// if angle is Inifinity, this line should throw a RangeError
     				ctx.rotate(angle);
     				const color = colors[Math.floor(prngno * colors.length)];
@@ -237,11 +239,14 @@ function downloadCanvas(fileName) {
 
 
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
+//	for (let i = 0; i < 5; i++) {
 	colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 	colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
+	console.log(blendMode);
 	colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
 	ctx.scale(4, 4);
-	downloadCanvas(blendMode "-" fxhash);
+//	}
+	downloadCanvas(fxhash);
 }
 
 
@@ -277,13 +282,11 @@ const ProportionChance = getStringLengths(Phrases);
 
 
 //  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
-const blendModes = ['multiply', 'screen', 'lighten', 'color-dodge', 'color-burn', 'hard-light'];
+const blendModes = ['multiply', 'screen', 'overlay', 'lighten', 'color-dodge', 'hard-light', 'soft-light', 'difference', 'hue', 'saturation', 'color', 'luminosity'];
 
 // Choose a random blend mode from the array
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 
 // call the drawAndDownload function
-draw(ctx, Pallettes, ProportionChance, blendMode).then(() => {
-	console.log("File downloaded successfully");
-});
+draw(ctx, Pallettes, ProportionChance, blendMode);
