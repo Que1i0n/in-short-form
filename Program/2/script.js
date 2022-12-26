@@ -200,7 +200,7 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
 
 
 			for (let y = 0; y < canvas.width; y++) {
-  				for (let x = i * width; x < (i + 1) * width; x++) {
+  				for (let x = i * canvas.width; x < (i + 1) * width; x++) {
 					// if angle is Inifinity, this line should throw a RangeError
     				ctx.rotate(angle);
     				const color = colors[Math.floor(prngno * colors.length)];
