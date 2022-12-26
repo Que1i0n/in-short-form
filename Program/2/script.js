@@ -66,12 +66,12 @@ function getRandomColors(colors, numColors) {
 	const shortenedColors = [];
 
 	for (let i = 0; i < numColors; i++) {
-		const index = prngno * colors.length;
+		const index = Math.floor(prngno * colors.length);
 		shortenedColors.push(colors[index]);
   	}
 
-  	//return [...new Set(shortenedColors)]; // remove duplicates
-	return [shortenedColors];
+  	return [...new Set(shortenedColors)]; // remove duplicates
+	
 }
 
 
@@ -240,6 +240,7 @@ function downloadCanvas(fileName) {
 
 
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
+	console.log("Started");
 //	for (let i = 0; i < 5; i++) {
 	colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 	colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
@@ -250,6 +251,9 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
 	downloadCanvas(fxhash);
 }
 
+
+// call the drawing function
+draw(ctx, Pallettes, ProportionChance, blendMode);
 
 const prngno = fxrand()
 const canvas = document.getElementById("canvas");
@@ -290,5 +294,5 @@ const blendModes = ['multiply', 'screen', 'overlay', 'lighten', 'color-dodge', '
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 
-// call the drawAndDownload function
-draw(ctx, Pallettes, ProportionChance, blendMode);
+
+
