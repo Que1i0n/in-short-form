@@ -241,7 +241,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
 	colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
 	colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
 	ctx.scale(4, 4);
-	downloadCanvas(fxhash);
+	downloadCanvas(blendMode "-" fxhash);
 }
 
 
