@@ -66,11 +66,12 @@ function getRandomColors(colors, numColors) {
 	const shortenedColors = [];
 
 	for (let i = 0; i < numColors; i++) {
-	//	const index = prngno * colors.length;
-		shortenedColors.push(colors/*[index]*/);
+		const index = prngno * colors.length;
+		shortenedColors.push(colors[index]);
   	}
 
-  	return [...new Set(shortenedColors)]; // remove duplicates
+  	//return [...new Set(shortenedColors)]; // remove duplicates
+	return [shortenedColors];
 }
 
 
@@ -272,6 +273,7 @@ Phrases.forEach(phrase => {
 	const hexColors = sentenceToHexColors(phrase);
 	// select palletteDepth number of colours from hexColors
 	const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
+
 	// add shortenedColors to Pallettes
 	Pallettes.push(shortenedColors);
 });
