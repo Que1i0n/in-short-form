@@ -159,7 +159,7 @@ function getStringLengths(strings) {
   statusMessage = 'Calculation complete';
   return strings.map(str => (str.length / totalLength) / proportionSum * 100);
 }
-
+/*
 function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
   isCalculating = true;
   statusMessage = 'Coloring canvas';
@@ -215,6 +215,33 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = false;
   statusMessage = 'Vertical canvas coloring complete';
 }
+*/
+
+function colorCanvas(ctx, palettes, proportionChance, orientation, blendMode) {
+  isCalculating = true;
+  statusMessage = `Coloring canvas ${orientation === 'horizontal' ? 'horizontally' : 'vertically'}`;
+
+  if (!Array.isArray(proportionChance)) {
+    proportionChance = [proportionChance];
+  }
+  const totalPercentage = proportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+  const segmentSize = orientation === 'horizontal' ? canvas.height / totalPercentage : canvas.width / totalPercentage; 
+  for (let i = 0; i < palettes.length; i++) {
+    const colors = palettes[i];   
+    const x = orientation === 'horizontal' ? 0 : i * segmentSize;
+    const y = orientation === 'horizontal' ? i * segmentSize : 0;
+    const width = orientation === 'horizontal' ? canvas.width : segmentSize * parseInt(proportionChance[i]);
+    const height = orientation === 'horizontal' ? segmentSize * parseInt(proportionChance[i]) : canvas.height;
+    ctx.globalCompositeOperation = blendMode;
+    ctx.fillStyle = colors[0];
+    ctx.fillRect(x, y, width, height);
+  }
+
+  isCalculating = false;
+  statusMessage = 'Canvas coloring complete';
+}
 
 function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = true;
@@ -268,9 +295,11 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   function draw(ctx, Pallettes, ProportionChance, blendMode) {
     isCalculating = true;
     statusMessage = 'Drawing canvas';
-  
-    colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-    colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
+    
+    colorCanvas(ctx, palettes, proportionChance, orientation, blendMode);
+
+    //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+    //colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
     for (let i = 0; i < 5; i++) {
       colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
       ctx.scale(4, 4);
