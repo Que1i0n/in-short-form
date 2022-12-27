@@ -288,6 +288,4 @@ const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 
 // call the drawAndDownload function
-draw(ctx, Pallettes, ProportionChance, blendMode).then(() => {
-console.log("File downloaded successfully");
-});
+draw(ctx, Pallettes, ProportionChance, blendMode);

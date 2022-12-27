@@ -270,7 +270,7 @@ function sentenceToHexColors(sentence) {
     
     
     // phrases is an array, where each element is a sentence
-    const Phrases = getPhrases("kjv.txt", prngno); 
+    const Phrases = getPhrases("kjv.txt", 6); 
   
     console.log(prngno, Phrases);
     
@@ -292,16 +292,14 @@ function sentenceToHexColors(sentence) {
     
     
     //  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
-    const blendModes = ['multiply', 'screen', 'lighten', 'color-dodge', 'color-burn', 'hard-light'];
+    const blendModes = ['multiply', 'screen', 'color-dodge', 'color-burn', 'hard-light'];
     
     // Choose a random blend mode from the array
     const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
     
     
     // call the drawAndDownload function
-    draw(ctx, Pallettes, ProportionChance, blendMode).then(() => {
-    console.log("File downloaded successfully");
-    });
+    draw(ctx, Pallettes, ProportionChance, blendMode);
     
   
   
