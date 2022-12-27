@@ -1,24 +1,76 @@
-//turn fxrand() to a single digit
 function noZero(prngno) {
-// Convert prngno to a string and split it into an array of characters
-const digits = String(prngno).split('');
+  // Split prngno into two parts, one before and one after the decimal point
+  const parts = String(prngno).split('.');
+  // If there is a part after the decimal point, assign it to the digits variable
+  // Otherwise, assign an empty array to the digits variable
+  const digits = parts[1] ? parts[1].split('') : [];
 
-// Iterate through the digits and return the first non-zero digit as an integer
-for (let i = 0; i < digits.length; i++) {
-  if (digits[i] !== '0') {
-    return parseInt(digits[i]);
+  // Iterate through the digits and return the first non-zero digit as an integer
+  for (let i = 0; i < digits.length; i++) {
+    if (digits[i] !== '0') {
+      return parseInt(digits[i]);
+    }
   }
+
+  // If no non-zero digits were found in the part after the decimal point,
+  // iterate through the characters in the part before the decimal point
+  if (parts[0]) {
+    const digits = parts[0].split('');
+    for (let i = 0; i < digits.length; i++) {
+      if (digits[i] !== '0') {
+        return parseInt(digits[i]);
+      }
+    }
+  }
+
+  // If no non-zero digits were found, log an error message to the console and return 1
+  console.error('No non-zero digits found');
+  return 1;
 }
 
-// If no non-zero digits were found, return 0
-return 2;
+
+function getPhrases(filePath, number) {
+  const reading = [];
+  const rawFile = new XMLHttpRequest();
+
+  // Open the file asynchronously
+  rawFile.open("GET", filePath, false);
+
+  rawFile.onreadystatechange = function() {
+    if (rawFile.readyState === 4) {
+      if (rawFile.status === 200 || rawFile.status == 0) {
+        const textData = rawFile.responseText;
+        const rows = textData.split('\n');
+        var startRow = 0;
+        var skipInterval = 1;
+        // Roll the dice to determine the number of phrases to select
+        const numDice = noZero(number);
+        const numPhrases = numDice > 0 ? numDice : 1;
+        for (let i = 0; i < numDice; i++) {
+          const roll = Math.floor(fxrand() * 6) + 1;
+          startRow += roll;
+          skipInterval *= roll;
+        }
+
+        for (let i = 0; i < numPhrases; i++) {
+          const index = (startRow + i * skipInterval) % rows.length;
+          reading.push(rows[index]);
+        }
+      }
+    }
+  };
+
+  rawFile.send(null);
+
+  return reading;
 }
 
+
+/*
 //injest bible, and return quantity of phrases
 function getPhrases(filePath, number) {
 const reading = [];
 const rawFile = new XMLHttpRequest();
-
 // Open the file asynchronously
 rawFile.open("GET", filePath, false);
 
@@ -27,28 +79,25 @@ rawFile.onreadystatechange = function() {
     if (rawFile.status === 200 || rawFile.status == 0) {
       const textData = rawFile.responseText;
       const rows = textData.split('\n');
-
+      //let startRow = 0;
+      //let skipInterval = 1;
       // Roll the dice to determine the number of phrases to select
       const numDice = Math.max(...number.toString().split('').map(Number));
-      let startRow = 0;
-      let skipInterval = 1;
-      // const startRow = numDice > 0 ? numDice - 1 : 0;
+      const startRow = numDice > 0 ? numDice - 1 : 0;
       const numPhrases = numDice > 0 ? numDice : 1;
-      // const skipInterval = numDice > 0 ? numDice * numPhrases : 1;
+      const skipInterval = numDice > 0 ? numDice * numPhrases : 1;
       for (let i = 0; i < numDice; i++) {
-        const roll = Math.floor(fxrand() * 6) + 1;
+        const roll = Math.floor(prngno * 6) + 1;
         startRow += roll;
         skipInterval *= roll;
       }
-
+      console.log(startRow, skipInterval);
       for (let i = 0; i < numPhrases; i++) {
         const index = (startRow + i * skipInterval) % rows.length;
         reading.push(rows[index]);
-        console.log(startRow, skipInterval);
       }
     }
   }
-
 };
 
 rawFile.send(null);
@@ -56,7 +105,7 @@ rawFile.send(null);
 return reading;
 
 }
-
+*/
 
 
 
@@ -263,17 +312,6 @@ function downloadCanvas(fileName) {
 }
 
 
-Phrases.forEach(phrase => {
-  // translates the phrase into an array of hexadecimal colours
-  const hexColors = sentenceToHexColors(phrase);
-  // select palletteDepth number of colours from hexColors
-  const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
-  // add shortenedColors to Pallettes
-  Pallettes.push(shortenedColors);
-  });
-
-
-
 
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
 colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
@@ -286,8 +324,8 @@ downloadCanvas(fxhash);
 }
 
 
-const prngno = fxrand();
-const diceQuant = noZero(prngno);
+let prngno = fxrand();
+let diceQuant = noZero(prngno);
 const canvas = document.getElementById("canvas");
     // canvas.width = 500;  // or any other value for the side length of the square
     // canvas.height = 500;
@@ -297,13 +335,20 @@ const ctx = canvas.getContext("2d");
 const Phrases = getPhrases("kjv.txt", diceQuant);  
 const Pallettes = [];
 let palletteDepth = 3;
-
+Phrases.forEach(phrase => {
+// translates the phrase into an array of hexadecimal colours
+const hexColors = sentenceToHexColors(phrase);
+// select palletteDepth number of colours from hexColors
+const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
+// add shortenedColors to Pallettes
+Pallettes.push(shortenedColors);
+});
 
 const ProportionChance = getStringLengths(Phrases);
 
 
 //  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
-const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminositiy'];
+const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'luminositiy'];
 
 // Choose a random blend mode from the array
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
@@ -311,7 +356,6 @@ const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 // call the drawAndDownload function
 draw(ctx, Pallettes, ProportionChance, blendMode);
-
 
 console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "Colours:", Pallettes);
 
