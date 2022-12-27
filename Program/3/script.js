@@ -28,7 +28,6 @@ function noZero(prngno) {
   return 1;
 }
 
-
 function getPhrases(filePath, number) {
   const reading = [];
   const rawFile = new XMLHttpRequest();
@@ -66,7 +65,7 @@ function getPhrases(filePath, number) {
 }
 
 
-/*
+/*  OLD VERSION OF ABOVE FUNCTION //
 //injest bible, and return quantity of phrases
 function getPhrases(filePath, number) {
 const reading = [];
@@ -109,7 +108,6 @@ return reading;
 
 
 
-
 // Convert a sentence into an array of hexadecimal colors
 function sentenceToHexColors(sentence) {
 const hexColors = [];
@@ -135,7 +133,6 @@ chars.forEach(char => {
 return hexColors;
 }
 
-
 // Generate a random selection of colors from the given array of hexadecimal colors
 function getRandomColors(colors, numColors) {
 const shortenedColors = [];
@@ -150,7 +147,6 @@ return shortenedColors;
 
 }
 
-
 // Calculate the normalized lengths of the given strings as proportions
 function getStringLengths(strings) {
 const totalLength = strings.reduce((sum, str) => sum + str.length, 0);
@@ -158,10 +154,6 @@ const proportionSum = strings.reduce((sum, str) => sum + (str.length / totalLeng
 // does strings.map convert the values being produced to strings, or does it leave them as numbers?
 return strings.map(str => (str.length / totalLength) / proportionSum * 100);
 }
-
-
-
-
 
 function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
 // Calculate the total percentage of the ProportionChance array
@@ -201,11 +193,6 @@ if (!Array.isArray(ProportionChance)) {
 }
 }
 
-
-
-
-
-
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
 // Calculate the total percentage of the ProportionChance array
 if (!Array.isArray(ProportionChance)) {
@@ -244,7 +231,6 @@ for (let i = 0; i < Pallettes.length; i++) {
 }
 console.log(blendMode);
 }
-
 // const angle = (ProportionChance[i] / prngno) * 360;
 // ctx.rotate(angle);
 
@@ -291,9 +277,6 @@ for (let i = 0; i < ProportionChance.length; i++) {
 }
 }
 
-
-
-
 function downloadCanvas(fileName) {
 // get the canvas content as a data URL
   const dataURL = canvas.toDataURL();
@@ -311,8 +294,6 @@ function downloadCanvas(fileName) {
   document.body.removeChild(link);
 }
 
-
-
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
 colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
 colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
@@ -323,18 +304,21 @@ ctx.scale(4, 4);
 downloadCanvas(fxhash);
 }
 
-
-let prngno = fxrand();
-let diceQuant = noZero(prngno);
 const canvas = document.getElementById("canvas");
-    // canvas.width = 500;  // or any other value for the side length of the square
-    // canvas.height = 500;
 canvas.width = 3840;  // 4K resolution
 canvas.height = 2160;
 const ctx = canvas.getContext("2d");
+let prngno = fxrand();
+let diceQuant = noZero(prngno);
 const Phrases = getPhrases("kjv.txt", diceQuant);  
 const Pallettes = [];
 let palletteDepth = 3;
+const ProportionChance = getStringLengths(Phrases);
+//  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
+const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'luminositiy'];
+const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
+
+
 Phrases.forEach(phrase => {
 // translates the phrase into an array of hexadecimal colours
 const hexColors = sentenceToHexColors(phrase);
@@ -344,18 +328,7 @@ const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colo
 Pallettes.push(shortenedColors);
 });
 
-const ProportionChance = getStringLengths(Phrases);
-
-
-//  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
-const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'luminositiy'];
-
-// Choose a random blend mode from the array
-const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
-
-
 // call the drawAndDownload function
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
 console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "Colours:", Pallettes);
-
