@@ -8,6 +8,15 @@
     background-color: aliceblue;
     }
 
+#statusIndicator {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    }
+      
+
 body{
     overflow: hidden;
 }

@@ -1,30 +1,40 @@
 let isCalculating = false;
 let hasError = false;
 let statusMessage = '';
+let previousStatusMessage = '';
 
+function updateStatus() {
+  // Select the statusIndicator element
+  const statusIndicator = document.querySelector('#statusIndicator');
 
-
-  // error and status reporting
-
-  const statusIndicator = document.getElementById('status-indicator');
-
-  function updateStatus() {
-    if (hasError) {
-      statusIndicator.style.backgroundColor = 'red';
-    } else if (isCalculating) {
-      statusIndicator.style.backgroundColor = 'yellow';
-    } else {
-      statusIndicator.style.backgroundColor = 'green';
-    }
+  if (statusMessage !== previousStatusMessage) {
+    console.log(statusMessage);
+    previousStatusMessage = statusMessage;
   }
-  
-  setInterval(updateStatus, 100);
-  
-  console.log(statusMessage);
-  
+
   if (hasError) {
-    console.log('%c \u25CF', 'color: orange; font-size: 16px');
+    // Set the background color to red
+    statusIndicator.style.backgroundColor = 'red';
+  } else if (isCalculating) {
+    // Set the background color to yellow
+    statusIndicator.style.backgroundColor = 'yellow';
+  } else {
+    // Set the background color to green
+    statusIndicator.style.backgroundColor = 'green';
   }
+
+}
+
+
+
+// Update the status when the variables change
+setInterval(updateStatus, 100);
+
+// If the hasError flag is set, log an orange circle to the console
+if (hasError) {
+  console.log('%c \u25CF', 'color: orange; font-size: 16px');
+}
+
   
   
 
@@ -239,11 +249,13 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
   statusMessage = 'Angled canvas coloring complete';
 }
 
-function downloadCanvas(fileName) {
+function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
   isCalculating = true;
   statusMessage = 'Downloading canvas';
 
-  const dataURL = canvas.toDataURL();
+  const metadata = `fxhash:${prngno},Phrases:${Phrases},dice:${diceQuant},ProportionChance:${ProportionChance},Pallettes:${Pallettes},blendMode:${blendMode}`;
+  const metadataBase64 = btoa(metadata);
+  const dataURL = `${canvas.toDataURL()}#${metadataBase64}`;
   const link = document.createElement("a");
   link.href = dataURL;
   link.download = fileName;
@@ -253,7 +265,7 @@ function downloadCanvas(fileName) {
 
   isCalculating = false;
   statusMessage = 'Canvas download complete';
-  }
+}
   
   function draw(ctx, Pallettes, ProportionChance, blendMode) {
     isCalculating = true;
@@ -265,7 +277,7 @@ function downloadCanvas(fileName) {
       colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
       ctx.scale(4, 4);
     }
-    downloadCanvas(fxhash);
+    downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
   
     isCalculating = false;
     statusMessage = 'Canvas drawing complete';
