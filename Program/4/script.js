@@ -25,8 +25,6 @@ function updateStatus() {
 
 }
 
-
-
 // Update the status when the variables change
 setInterval(updateStatus, 100);
 
