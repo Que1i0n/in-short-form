@@ -1,33 +1,7 @@
-let isCalculating = false;
-let hasError = false;
-let statusMessage = '';
-let previousStatusMessage = '';
-
-// Create a new Worker object
-//const worker = new Worker('status-worker.js');
-
-// Listen for messages from the worker
-//worker.onmessage = (event) => {
-  // Set the background color of the statusIndicator element
-//  document.querySelector('#statusIndicator').style.backgroundColor = event.data;
-//};
-
-// Update the status when the variables change
-//setInterval(() => {
-  // Send a message to the worker with the current status information
-//  worker.postMessage({ statusMessage, hasError, isCalculating });
-//}, 100);
-
-// If the hasError flag is set, log an orange circle to the console
-//if (hasError) {  console.log('%c \u25CF', 'color: orange; font-size: 16px');}
-
-  
 
   // the program
 
   function noZero(prngno, index) {
-    isCalculating = true;
-    statusMessage = 'Calculating non-zero digits';
   
     const parts = String(prngno).split('.');
     const digits = parts[1] ? parts[1].split('') : [];
@@ -36,8 +10,6 @@ let previousStatusMessage = '';
       if (digits[i] !== '0') {
         count++;
         if (count === index) {
-          isCalculating = false;
-          statusMessage = 'Calculation complete';
           return parseInt(digits[i]);
         }
       }
@@ -48,25 +20,16 @@ let previousStatusMessage = '';
         if (digits[i] !== '0') {
           count++;
           if (count === index) {
-            isCalculating = false;
-            statusMessage = 'Calculation complete';
             return parseInt(digits[i]);
           }
         }
       }
     }
-    hasError = true;
-    statusMessage = 'No non-zero digits found';
-    console.error('No non-zero digits found');
-    isCalculating = false;
     return 1;
   }
   
 
 function getPhrases(filePath, number) {
-  isCalculating = true;
-  statusMessage = 'Retrieving phrases';
-  
   const reading = [];
   const rawFile = new XMLHttpRequest();
   rawFile.open("GET", filePath, false);
@@ -89,24 +52,15 @@ function getPhrases(filePath, number) {
           const index = (startRow + i * skipInterval) % rows.length;
           reading.push(rows[index]);
         }
-      } else {
-        hasError = true;
-        statusMessage = `Error retrieving file: ${rawFile.statusText}`;
-      }
+      }    
     }
   };
 
   rawFile.send(null);
-
-  isCalculating = false;
-  statusMessage = 'Phrase retrieval complete';
   return reading;
 }
 
 function sentenceToHexColors(sentence) {
-  isCalculating = true;
-  statusMessage = 'Converting sentence to hex colors';
-
   const hexColors = [];
   const chars = sentence.split('');  
   let numDigits = 0;
@@ -122,16 +76,10 @@ function sentenceToHexColors(sentence) {
       hexColors.push('#' + hexCode);
     }
   });
-
-  isCalculating = false;
-  statusMessage = 'Conversion complete';
   return hexColors;
 }
 
 function getRandomColors(colors, numColors) {
-  isCalculating = true;
-  statusMessage = 'Selecting random colors';
-  
   const shortenedColors = [];
 
   for (let i = 0; i < numColors; i++) {
@@ -139,19 +87,12 @@ function getRandomColors(colors, numColors) {
     shortenedColors.push(colors[index]);
   }
 
-  isCalculating = false;
-  statusMessage = 'Selection complete';
   return shortenedColors;
 }
 
 function getStringLengths(strings) {
-  isCalculating = true;
-  statusMessage = 'Calculating string lengths';
-  
   const totalLength = strings.reduce((sum, str) => sum + str.length, 0);
   const proportionSum = strings.reduce((sum, str) => sum + (str.length / totalLength), 0);
-  isCalculating = false;
-  statusMessage = 'Calculation complete';
   return strings.map(str => (str.length / totalLength) / proportionSum * 100);
 }
 /*
@@ -245,9 +186,6 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
 */
 
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
-  isCalculating = true;
-  statusMessage = 'Coloring canvas vertically';
-
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
   }
@@ -270,15 +208,9 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
       ctx.drawImage(canvas, 0, 0);
     }
   }
-
-  isCalculating = false;
-  statusMessage = 'Vertical canvas coloring complete';
 }
 
 function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
-  isCalculating = true;
-  statusMessage = 'Coloring canvas';
-
   if (!Array.isArray(ProportionChance)) {
     proportionChance = [proportionChance];
   }
@@ -296,15 +228,9 @@ function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
     ctx.fillStyle = colors[0];
     ctx.fillRect(x, y, width, height);
   }
-
-  isCalculating = false;
-  statusMessage = 'Canvas coloring complete';
 }
 
 function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch) {
-  isCalculating = true;
-  statusMessage = 'Coloring canvas at an angle';
-
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
     ctx.rotate(angle);
@@ -341,14 +267,9 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBat
       }
     }
   }
-
-  isCalculating = false;
-  statusMessage = 'Angled canvas coloring complete';
 }
 
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
-  isCalculating = true;
-  statusMessage = 'Downloading canvas and metadata';
   let metadata = `fxhash:${prngno}\nPhrases:\n`;
   for (let i = 0; i < Phrases.length; i++) {
     metadata += `${i + 1}. ${Phrases[i]}\n`;
@@ -373,16 +294,10 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   document.body.appendChild(metadataLink);
   metadataLink.click();
   document.body.removeChild(metadataLink);
-
-  isCalculating = false;
-  statusMessage = 'Canvas and metadata download complete';
 }
 
   
   function draw(ctx, Pallettes, ProportionChance, blendMode) {
-    isCalculating = true;
-    statusMessage = 'Drawing canvas';
-    
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
 
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
@@ -394,9 +309,6 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
-  
-    isCalculating = false;
-    statusMessage = 'Canvas drawing complete';
   }
   
   const canvas = document.getElementById("canvas");
