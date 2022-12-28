@@ -4,24 +4,22 @@ let statusMessage = '';
 let previousStatusMessage = '';
 
 // Create a new Worker object
-const worker = new Worker('status-worker.js');
+//const worker = new Worker('status-worker.js');
 
 // Listen for messages from the worker
-worker.onmessage = (event) => {
+//worker.onmessage = (event) => {
   // Set the background color of the statusIndicator element
-  document.querySelector('#statusIndicator').style.backgroundColor = event.data;
-};
+//  document.querySelector('#statusIndicator').style.backgroundColor = event.data;
+//};
 
 // Update the status when the variables change
-setInterval(() => {
+//setInterval(() => {
   // Send a message to the worker with the current status information
-  worker.postMessage({ statusMessage, hasError, isCalculating });
-}, 100);
+//  worker.postMessage({ statusMessage, hasError, isCalculating });
+//}, 100);
 
 // If the hasError flag is set, log an orange circle to the console
-if (hasError) {
-  console.log('%c \u25CF', 'color: orange; font-size: 16px');
-}
+//if (hasError) {  console.log('%c \u25CF', 'color: orange; font-size: 16px');}
 
   
 
@@ -176,6 +174,7 @@ function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
   isCalculating = false;
   statusMessage = 'Canvas coloring complete';
 }
+*/
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = true;
   statusMessage = 'Coloring canvas vertically';
@@ -204,7 +203,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = false;
   statusMessage = 'Vertical canvas coloring complete';
 }
-*/
+
 
 function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = true;
@@ -265,21 +264,31 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
 
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
   isCalculating = true;
-  statusMessage = 'Downloading canvas';
+  statusMessage = 'Downloading canvas and metadata';
 
-  const metadata = `fxhash:${prngno},Phrases:${Phrases},dice:${diceQuant},ProportionChance:${ProportionChance},Pallettes:${Pallettes},blendMode:${blendMode}`;
-  const metadataBase64 = btoa(metadata);
-  const dataURL = `${canvas.toDataURL()}#${metadataBase64}`;
-  const link = document.createElement("a");
-  link.href = dataURL;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${Pallettes}\nblendMode:${blendMode}`;
+
+  const imageDataURL = canvas.toDataURL();
+  const imageLink = document.createElement("a");
+  imageLink.href = imageDataURL;
+  imageLink.download = fileName;
+  document.body.appendChild(imageLink);
+  imageLink.click();
+  document.body.removeChild(imageLink);
+
+  const metadataBlob = new Blob([metadata], {type: 'text/plain'});
+  const metadataUrl = URL.createObjectURL(metadataBlob);
+  const metadataLink = document.createElement("a");
+  metadataLink.href = metadataUrl;
+  metadataLink.download = `${fileName}.txt`;
+  document.body.appendChild(metadataLink);
+  metadataLink.click();
+  document.body.removeChild(metadataLink);
 
   isCalculating = false;
-  statusMessage = 'Canvas download complete';
+  statusMessage = 'Canvas and metadata download complete';
 }
+
   
   function draw(ctx, Pallettes, ProportionChance, blendMode) {
     isCalculating = true;
@@ -288,7 +297,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
 
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-    //colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
+    colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
     
     for (let i = 0; i < 5; i++) {
       colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
@@ -307,7 +316,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const ctx = canvas.getContext("2d");
   let prngno = fxrand();
   let diceQuant = noZero(prngno);
-  const Phrases = getPhrases("kjv.txt", diceQuant);  
+  const Phrases = getPhrases("Genesis.txt", diceQuant);  
   const Pallettes = [];
   let palletteDepth = 3;
   const ProportionChance = getStringLengths(Phrases);
