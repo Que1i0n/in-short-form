@@ -66,16 +66,26 @@ function sentenceToHexColors(sentence) {
   return hexColors;
 }
 
-function getRandomColors(colors, numColors) {
-  const shortenedColors = [];
-
-  for (let i = 0; i < numColors; i++) {
-    const index = Math.floor(prngno * colors.length);
-    shortenedColors.push(colors[index]);
+function getRandomColors(colors, numColors, prngno) {
+    const shortenedColors = [];
+  
+    // Initialize the PRNG with a seed value
+    let seed = prngno;
+    function prng() {
+      seed = (seed * 16807) % 2147483647;
+      return seed / 2147483647;
+    }
+  
+    for (let i = 0; i < numColors; i++) {
+      // Generate a new random number using the PRNG
+      const Newprngno = prng();
+      const index = Math.floor(Newprngno * Math.min(colors.length, numColors));
+      shortenedColors.push(colors[index]);
+    }
+  
+    return shortenedColors;
   }
-
-  return shortenedColors;
-}
+  
 
 function getStringLengths(strings) {
   const totalLength = strings.reduce((sum, str) => sum + str.length, 0);
@@ -192,7 +202,6 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
-
 function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     proportionChance = [proportionChance];
@@ -212,7 +221,6 @@ function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
     ctx.fillRect(x, y, width, height);
   }
 }
-
 function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
@@ -237,10 +245,6 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
-
-
-
-
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
   let metadata = `fxhash:${prngno}\nPhrases:\n`;
   for (let i = 0; i < Phrases.length; i++) {
@@ -267,20 +271,19 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   metadataLink.click();
   document.body.removeChild(metadataLink);
 }
+function draw(ctx, Pallettes, ProportionChance, blendMode) {
+colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
 
-  function draw(ctx, Pallettes, ProportionChance, blendMode) {
-    colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
+//colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
 
-    //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-    colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
-    
-    for (let i = 0; i < 5; i++) {
-      colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
-      ctx.scale(4, 4);
-    }
-    console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
-    downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
-  }
+for (let i = 0; i < 5; i++) {
+    colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
+    ctx.scale(4, 4);
+}
+console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
+downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+}
   
   const canvas = document.getElementById("canvas");
   canvas.width = 3840;  // 4K resolution
@@ -301,7 +304,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
   Phrases.forEach(phrase => {
     const hexColors = sentenceToHexColors(phrase);
-    const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
+    const shortenedColors = getRandomColors(hexColors, palletteDepth, prngno);  // <--- colour pallette depth
     Pallettes.push(shortenedColors);
   });
 
@@ -310,7 +313,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
 
   draw(ctx, Pallettes, ProportionChance, blendMode);
 
-console.log("dice:", dice, "diceQuant:", diceQuant, "diceMultiple:", diceMultiple);
+console.log("diceQuant:", diceQuant, "diceMultiple:", diceMultiple);
 console.log(diceQuant);
 
  // console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
