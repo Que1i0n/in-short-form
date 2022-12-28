@@ -25,35 +25,43 @@ let previousStatusMessage = '';
 
   // the program
 
-function noZero(prngno) {
-  isCalculating = true;
-  statusMessage = 'Calculating non-zero digits';
+  function noZero(prngno, index) {
+    isCalculating = true;
+    statusMessage = 'Calculating non-zero digits';
   
-  const parts = String(prngno).split('.');
-  const digits = parts[1] ? parts[1].split('') : [];
-  for (let i = 0; i < digits.length; i++) {
-    if (digits[i] !== '0') {
-      isCalculating = false;
-      statusMessage = 'Calculation complete';
-      return parseInt(digits[i]);
-    }
-  }
-  if (parts[0]) {
-    const digits = parts[0].split('');
+    const parts = String(prngno).split('.');
+    const digits = parts[1] ? parts[1].split('') : [];
+    let count = 0;
     for (let i = 0; i < digits.length; i++) {
       if (digits[i] !== '0') {
-        isCalculating = false;
-        statusMessage = 'Calculation complete';
-        return parseInt(digits[i]);
+        count++;
+        if (count === index) {
+          isCalculating = false;
+          statusMessage = 'Calculation complete';
+          return parseInt(digits[i]);
+        }
       }
     }
+    if (parts[0]) {
+      const digits = parts[0].split('');
+      for (let i = 0; i < digits.length; i++) {
+        if (digits[i] !== '0') {
+          count++;
+          if (count === index) {
+            isCalculating = false;
+            statusMessage = 'Calculation complete';
+            return parseInt(digits[i]);
+          }
+        }
+      }
+    }
+    hasError = true;
+    statusMessage = 'No non-zero digits found';
+    console.error('No non-zero digits found');
+    isCalculating = false;
+    return 1;
   }
-  hasError = true;
-  statusMessage = 'No non-zero digits found';
-  console.error('No non-zero digits found');
-  isCalculating = false;
-  return 1;
-}
+  
 
 function getPhrases(filePath, number) {
   isCalculating = true;
@@ -69,7 +77,7 @@ function getPhrases(filePath, number) {
         const rows = textData.split('\n');
         var startRow = 0;
         var skipInterval = 1;
-        const numDice = noZero(number);
+        const numDice = number;
         const numPhrases = numDice > 0 ? numDice : 1;
         for (let i = 0; i < numDice; i++) {
           const roll = Math.floor(fxrand() * 6) + 1;
@@ -174,7 +182,7 @@ function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
   isCalculating = false;
   statusMessage = 'Canvas coloring complete';
 }
-*/
+
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = true;
   statusMessage = 'Coloring canvas vertically';
@@ -202,33 +210,6 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
 
   isCalculating = false;
   statusMessage = 'Vertical canvas coloring complete';
-}
-
-
-function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
-  isCalculating = true;
-  statusMessage = 'Coloring canvas';
-
-  if (!Array.isArray(ProportionChance)) {
-    proportionChance = [proportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];   
-    const x = canvas.width > canvas.height ? i * segmentSize : 0;
-    const y = canvas.width > canvas.height ? 0 : i * segmentSize;
-    const width = canvas.width > canvas.height ? segmentSize * parseInt(ProportionChance[i]) : canvas.width;
-    const height = canvas.width > canvas.height ? canvas.height : segmentSize * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    ctx.fillStyle = colors[0];
-    ctx.fillRect(x, y, width, height);
-  }
-
-  isCalculating = false;
-  statusMessage = 'Canvas coloring complete';
 }
 
 function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
@@ -261,12 +242,120 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = false;
   statusMessage = 'Angled canvas coloring complete';
 }
+*/
+
+function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
+  isCalculating = true;
+  statusMessage = 'Coloring canvas vertically';
+
+  if (!Array.isArray(ProportionChance)) {
+    ProportionChance = [ProportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+  const segmentHeight = canvas.width / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    const y = i * segmentHeight;
+    const width = segmentHeight * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    for (let y = 0; y < canvas.width; y++) {
+      for (let x = i * width; x < (i + 1) * width; x++) {
+        const color = colors[Math.floor(prngno * colors.length)];
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
+      }
+      // Draw the current segment to the canvas
+      ctx.drawImage(canvas, 0, 0);
+    }
+  }
+
+  isCalculating = false;
+  statusMessage = 'Vertical canvas coloring complete';
+}
+
+function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
+  isCalculating = true;
+  statusMessage = 'Coloring canvas';
+
+  if (!Array.isArray(ProportionChance)) {
+    proportionChance = [proportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+  const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    const x = canvas.width > canvas.height ? i * segmentSize : 0;
+    const y = canvas.width > canvas.height ? 0 : i * segmentSize;
+    const width = canvas.width > canvas.height ? segmentSize * parseInt(ProportionChance[i]) : canvas.width;
+    const height = canvas.width > canvas.height ? canvas.height : segmentSize * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    ctx.fillStyle = colors[0];
+    ctx.fillRect(x, y, width, height);
+  }
+
+  isCalculating = false;
+  statusMessage = 'Canvas coloring complete';
+}
+
+function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch) {
+  isCalculating = true;
+  statusMessage = 'Coloring canvas at an angle';
+
+  for (let i = 0; i < ProportionChance.length; i++) {
+    const angle = (ProportionChance[i] / prngno) * 360;
+    ctx.rotate(angle);
+    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+    }, 0);
+    const segmentHeight = canvas.width / totalPercentage;
+    for (let i = 0; i < Pallettes.length; i++) {
+      const colors = Pallettes[i];
+      const angle = (ProportionChance[i] / totalPercentage) * 360;
+      ctx.globalCompositeOperation = blendMode;
+      for (let y = 0; y < canvas.width; y++) {
+        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+          ctx.rotate(angle);
+          const color = colors[Math.floor(prngno * colors.length)];
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, 1, 1);
+          // Draw the current pixel to the canvas
+          ctx.drawImage(canvas, 0, 0);
+          // Check if the current batch size has been reached
+          if ((x * y) % pixelBatch === 0) {
+            // Reset the canvas and redraw all pixels
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < canvas.width; y++) {
+              for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+                ctx.rotate(angle);
+                const color = colors[Math.floor(prngno * colors.length)];
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, 1, 1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  isCalculating = false;
+  statusMessage = 'Angled canvas coloring complete';
+}
 
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
   isCalculating = true;
   statusMessage = 'Downloading canvas and metadata';
+  let metadata = `fxhash:${prngno}\nPhrases:\n`;
+  for (let i = 0; i < Phrases.length; i++) {
+    metadata += `${i + 1}. ${Phrases[i]}\n`;
+  }
+  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
-  const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${Pallettes}\nblendMode:${blendMode}`;
+  //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
@@ -300,7 +389,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
     
     for (let i = 0; i < 5; i++) {
-      colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
+      colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
       ctx.scale(4, 4);
     }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
@@ -314,13 +403,18 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   canvas.width = 3840;  // 4K resolution
   canvas.height = 2160;
   const ctx = canvas.getContext("2d");
+
+  const pixelBatch = 100;
+
   let prngno = fxrand();
-  let diceQuant = noZero(prngno);
-  const Phrases = getPhrases("Genesis.txt", diceQuant);  
+  let diceQuant = noZero(prngno[1], 1) * noZero(prngno[1], 2);
+  let diceMultiple = noZero(prngno[2], 1);
+ 
+  const Phrases = getPhrases("Genesis.txt", diceQuant);
   const Pallettes = [];
   let palletteDepth = 3;
   const ProportionChance = getStringLengths(Phrases);
-  const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'luminositiy'];
+  const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'saturation'];
   const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
   Phrases.forEach(phrase => {
     const hexColors = sentenceToHexColors(phrase);

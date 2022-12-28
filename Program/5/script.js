@@ -259,7 +259,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   isCalculating = true;
   statusMessage = 'Downloading canvas and metadata';
 
-  const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${Pallettes}\nblendMode:${blendMode}`;
+  const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
