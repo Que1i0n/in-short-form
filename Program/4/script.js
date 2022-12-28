@@ -2,14 +2,17 @@
   // the program
 
   function noZero(prngno) {
-    const parts = String(prngno).split('.');
-    const digits = parts[1] ? parts[1].split('') : [];
-    for (let i = 0; i < digits.length; i++) {
-      if (digits[i] !== '0') {
-        return parseInt(digits[i]);
-      }
-    }
-    return 1;
+    // Remove the "0." prefix from the input number
+    prngno = prngno.replace('0.', '');
+    // Return the input number if it is not zero, or 1 if it is zero
+    const result = prngno === '0' ? 1 : prngno;
+    // Split the result into an array of digits
+    const digits = result.split('');
+    // Return the first and second digits as diceQuant and diceMultiple, respectively
+    return {
+      diceQuant: parseInt(digits[0]),
+      diceMultiple: digits.length > 1 ? parseInt(digits[0]) * parseInt(digits[1]) : parseInt(digits[0]),
+    };
   }
   
 
@@ -288,10 +291,10 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const pixelBatch = 100;
 
   let prngno = fxrand();
-  let diceMultiple = noZero(prngno);
-  let diceQuant = diceMultiple * noZero(prngno * 10 % 1);
-  
- 
+  let dice = noZero(prngno);
+  let diceMultiple = dice.diceMultiple;
+  let diceQuant = dice.diceQuant; 
+   
   const Phrases = getPhrases("Genesis.txt", diceQuant);
   const Pallettes = [];
   let palletteDepth = 3;
@@ -305,7 +308,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   });
   draw(ctx, Pallettes, ProportionChance, blendMode);
 
-console.log(diceMultiple);
+console.log("dice:", dice, "diceQuant:", diceQuant, "diceMultiple:", diceMultiple);
 console.log(diceQuant);
 
  // console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
