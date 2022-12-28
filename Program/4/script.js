@@ -3,37 +3,26 @@ let hasError = false;
 let statusMessage = '';
 let previousStatusMessage = '';
 
-function updateStatus() {
-  // Select the statusIndicator element
-  const statusIndicator = document.querySelector('#statusIndicator');
+// Create a new Worker object
+const worker = new Worker('status-worker.js');
 
-  if (statusMessage !== previousStatusMessage) {
-    console.log(statusMessage);
-    previousStatusMessage = statusMessage;
-  }
-
-  if (hasError) {
-    // Set the background color to red
-    statusIndicator.style.backgroundColor = 'red';
-  } else if (isCalculating) {
-    // Set the background color to yellow
-    statusIndicator.style.backgroundColor = 'yellow';
-  } else {
-    // Set the background color to green
-    statusIndicator.style.backgroundColor = 'green';
-  }
-
-}
+// Listen for messages from the worker
+worker.onmessage = (event) => {
+  // Set the background color of the statusIndicator element
+  document.querySelector('#statusIndicator').style.backgroundColor = event.data;
+};
 
 // Update the status when the variables change
-setInterval(updateStatus, 100);
+setInterval(() => {
+  // Send a message to the worker with the current status information
+  worker.postMessage({ statusMessage, hasError, isCalculating });
+}, 100);
 
 // If the hasError flag is set, log an orange circle to the console
 if (hasError) {
   console.log('%c \u25CF', 'color: orange; font-size: 16px');
 }
 
-  
   
 
   // the program
@@ -217,23 +206,23 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
 }
 */
 
-function colorCanvas(ctx, palettes, proportionChance, orientation, blendMode) {
+function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
   isCalculating = true;
-  statusMessage = `Coloring canvas ${orientation === 'horizontal' ? 'horizontally' : 'vertically'}`;
+  statusMessage = 'Coloring canvas';
 
-  if (!Array.isArray(proportionChance)) {
+  if (!Array.isArray(ProportionChance)) {
     proportionChance = [proportionChance];
   }
-  const totalPercentage = proportionChance.reduce((sum, percentage) => {
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
     return sum + parseInt(percentage);
   }, 0);
-  const segmentSize = orientation === 'horizontal' ? canvas.height / totalPercentage : canvas.width / totalPercentage; 
-  for (let i = 0; i < palettes.length; i++) {
-    const colors = palettes[i];   
-    const x = orientation === 'horizontal' ? 0 : i * segmentSize;
-    const y = orientation === 'horizontal' ? i * segmentSize : 0;
-    const width = orientation === 'horizontal' ? canvas.width : segmentSize * parseInt(proportionChance[i]);
-    const height = orientation === 'horizontal' ? segmentSize * parseInt(proportionChance[i]) : canvas.height;
+  const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    const x = canvas.width > canvas.height ? i * segmentSize : 0;
+    const y = canvas.width > canvas.height ? 0 : i * segmentSize;
+    const width = canvas.width > canvas.height ? segmentSize * parseInt(ProportionChance[i]) : canvas.width;
+    const height = canvas.width > canvas.height ? canvas.height : segmentSize * parseInt(ProportionChance[i]);
     ctx.globalCompositeOperation = blendMode;
     ctx.fillStyle = colors[0];
     ctx.fillRect(x, y, width, height);
@@ -296,10 +285,11 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     isCalculating = true;
     statusMessage = 'Drawing canvas';
     
-    colorCanvas(ctx, palettes, proportionChance, orientation, blendMode);
+    colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
 
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     //colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
+    
     for (let i = 0; i < 5; i++) {
       colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
       ctx.scale(4, 4);
