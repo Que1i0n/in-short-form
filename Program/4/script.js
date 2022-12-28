@@ -9,8 +9,9 @@
         return parseInt(digits[i]);
       }
     }
-    return 0;
+   // return 0;
   }
+  
   
   
 
@@ -289,8 +290,9 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const pixelBatch = 100;
 
   let prngno = fxrand();
-  let diceQuant = noZero(prngno[1], 1) * noZero(prngno[1], 2);
-  let diceMultiple = noZero(prngno[2], 1);
+  let diceQuant = noZero(prngno[1]) * noZero(prngno[2]);
+  let diceMultiple = noZero(prngno[3]);
+  
  
   const Phrases = getPhrases("Genesis.txt", diceQuant);
   const Pallettes = [];
