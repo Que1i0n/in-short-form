@@ -2,16 +2,16 @@
   // the program
 
   function noZero(prngno) {
-    // Remove the "0." prefix from the input number
-    prngno = prngno.replace('0.', '');
-    // Return the input number if it is not zero, or 1 if it is zero
-    const result = prngno === '0' ? 1 : prngno;
-    // Split the result into an array of digits
-    const digits = result.split('');
+    // Shift the decimal place one digit to the right and convert to an integer
+    const digit1 = parseInt(prngno * 10);
+    // Subtract the integer part to remove it
+    prngno -= digit1;
+    // Shift the decimal place one digit to the right and convert to an integer
+    const digit2 = parseInt(prngno * 10);
     // Return the first and second digits as diceQuant and diceMultiple, respectively
     return {
-      diceQuant: parseInt(digits[0]),
-      diceMultiple: digits.length > 1 ? parseInt(digits[0]) * parseInt(digits[1]) : parseInt(digits[0]),
+      diceQuant: digit1,
+      diceMultiple: digit1 * digit2,
     };
   }
   
@@ -268,7 +268,6 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   document.body.removeChild(metadataLink);
 }
 
-  
   function draw(ctx, Pallettes, ProportionChance, blendMode) {
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
 
@@ -291,9 +290,8 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const pixelBatch = 100;
 
   let prngno = fxrand();
-  let dice = noZero(prngno);
-  let diceMultiple = dice.diceMultiple;
-  let diceQuant = dice.diceQuant; 
+  let diceMultiple = 4;
+  let diceQuant = 2; 
    
   const Phrases = getPhrases("Genesis.txt", diceQuant);
   const Pallettes = [];
@@ -306,6 +304,10 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
     Pallettes.push(shortenedColors);
   });
+
+
+  console.log(diceQuant, diceMultiple);  
+
   draw(ctx, Pallettes, ProportionChance, blendMode);
 
 console.log("dice:", dice, "diceQuant:", diceQuant, "diceMultiple:", diceMultiple);
