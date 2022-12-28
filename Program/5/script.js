@@ -199,7 +199,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
       colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
       ctx.scale(4, 4);
     }
-    downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+    downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
   }
   
   const canvas = document.getElementById("canvas");

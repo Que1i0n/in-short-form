@@ -294,7 +294,8 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
       colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
       ctx.scale(4, 4);
     }
-    downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+    console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
+    downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
   
     isCalculating = false;
     statusMessage = 'Canvas drawing complete';
@@ -318,6 +319,6 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     Pallettes.push(shortenedColors);
   });
   draw(ctx, Pallettes, ProportionChance, blendMode);
-  console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
+ // console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
   
 
