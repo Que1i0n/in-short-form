@@ -231,6 +231,9 @@ function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
 }
 
 function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch) {
+  // Create an array to hold the pixel colors
+  const pixelColors = new Array(canvas.width * canvas.height).fill('white');
+
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
     ctx.rotate(angle);
@@ -246,28 +249,34 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBat
         for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
           ctx.rotate(angle);
           const color = colors[Math.floor(prngno * colors.length)];
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, 1, 1);
-          // Draw the current pixel to the canvas
-          ctx.drawImage(canvas, 0, 0);
-          // Check if the current batch size has been reached
-          if ((x * y) % pixelBatch === 0) {
-            // Reset the canvas and redraw all pixels
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let y = 0; y < canvas.width; y++) {
-              for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
-                ctx.rotate(angle);
-                const color = colors[Math.floor(prngno * colors.length)];
-                ctx.fillStyle = color;
-                ctx.fillRect(x, y, 1, 1);
-              }
-            }
-          }
+          // Store the computed pixel color in the array
+          pixelColors[y * canvas.width + x] = color;
         }
       }
     }
   }
+
+  // Update the canvas with the computed pixel colors
+  updateCanvas(ctx, canvas, pixelColors);
 }
+
+function updateCanvas(ctx, canvas, pixelColors) {
+  // Set the fill style to the default canvas color
+  ctx.fillStyle = 'white';
+  // Clear the canvas
+  //ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Iterate over the pixel colors array and draw each pixel to the canvas
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      ctx.fillStyle = pixelColors[y * canvas.width + x];
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+}
+
+
+
 
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
   let metadata = `fxhash:${prngno}\nPhrases:\n`;
