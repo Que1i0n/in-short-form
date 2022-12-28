@@ -9,10 +9,8 @@
         return parseInt(digits[i]);
       }
     }
-   // return 0;
+    return 1;
   }
-  
-  
   
 
 function getPhrases(filePath, number) {
@@ -290,8 +288,8 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const pixelBatch = 100;
 
   let prngno = fxrand();
-  let diceQuant = noZero(prngno[1]) * noZero(prngno[2]);
-  let diceMultiple = noZero(prngno[3]);
+  let diceMultiple = noZero(prngno);
+  let diceQuant = diceMultiple * noZero(prngno * 10 % 1);
   
  
   const Phrases = getPhrases("Genesis.txt", diceQuant);
@@ -306,5 +304,9 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     Pallettes.push(shortenedColors);
   });
   draw(ctx, Pallettes, ProportionChance, blendMode);
+
+console.log(diceMultiple);
+console.log(diceQuant);
+
  // console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
   
