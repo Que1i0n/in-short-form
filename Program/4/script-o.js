@@ -1,17 +1,32 @@
 
   // the program
 
-  function noZero(prngno) {
+  function noZero(prngno, index) {
+  
     const parts = String(prngno).split('.');
     const digits = parts[1] ? parts[1].split('') : [];
+    let count = 0;
     for (let i = 0; i < digits.length; i++) {
       if (digits[i] !== '0') {
-        return parseInt(digits[i]);
+        count++;
+        if (count === index) {
+          return parseInt(digits[i]);
+        }
       }
     }
-    return 0;
+    if (parts[0]) {
+      const digits = parts[0].split('');
+      for (let i = 0; i < digits.length; i++) {
+        if (digits[i] !== '0') {
+          count++;
+          if (count === index) {
+            return parseInt(digits[i]);
+          }
+        }
+      }
+    }
+    return 1;
   }
-  
   
 
 function getPhrases(filePath, number) {
@@ -235,6 +250,52 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
+/*
+function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch) {
+  // Create an array to hold the pixel colors
+  const pixelColors = new Array(canvas.width * canvas.height).fill('white');
+
+  for (let i = 0; i < ProportionChance.length; i++) {
+    const angle = (ProportionChance[i] / prngno) * 360;
+    ctx.rotate(angle);
+    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+    }, 0);
+    const segmentHeight = canvas.width / totalPercentage;
+    for (let i = 0; i < Pallettes.length; i++) {
+      const colors = Pallettes[i];
+      const angle = (ProportionChance[i] / totalPercentage) * 360;
+      ctx.globalCompositeOperation = blendMode;
+      for (let y = 0; y < canvas.width; y++) {
+        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+          ctx.rotate(angle);
+          console.log("rotated:", angle)
+          const color = colors[Math.floor(prngno * colors.length)];
+          // Store the computed pixel color in the array
+          pixelColors[y * canvas.width + x] = color;
+        }
+      }
+    }
+  }
+
+  // Update the canvas with the computed pixel colors
+  updateCanvas(ctx, canvas, pixelColors);
+}
+
+function updateCanvas(ctx, canvas, pixelColors) {
+  // Set the fill style to the default canvas color
+  ctx.fillStyle = 'white';
+  // Clear the canvas
+  //ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Iterate over the pixel colors array and draw each pixel to the canvas
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      ctx.fillStyle = pixelColors[y * canvas.width + x];
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+}*/
 
 
 
@@ -306,3 +367,4 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   draw(ctx, Pallettes, ProportionChance, blendMode);
  // console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
   
+
