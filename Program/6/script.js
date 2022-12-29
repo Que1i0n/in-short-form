@@ -136,9 +136,19 @@ function generateColors() {
         const b = Math.floor(prng(prngno + j + 2) * (max - min + 1)) + min;
         // Convert the numbers to hexadecimal strings and concatenate them
         hexCode = '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
-      } while (colorArray.includes(hexCode));
-      // Add the hex code to the color array
-      colorArray.push(hexCode);
+
+        // Calculate the average value of the color components
+        const avg = (r + g + b) / 3;
+          // If the average value is less than a certain threshold, increase the saturation by 75%
+      if (avg < 128) {
+        r = Math.min(255, Math.floor(r * 1.75));
+        g = Math.min(255, Math.floor(g * 1.75));
+        b = Math.min(255, Math.floor(b * 1.75));
+        hexCode = '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
+      }
+  } while (colorArray.includes(hexCode));
+    // Add the hex code to the color array
+    colorArray.push(hexCode);
     }
     // Push the current color array to the colors array
     colors.push(colorArray);
