@@ -131,9 +131,9 @@ function generateColors() {
       do {
         // Generate a different random number for each color component
         const [min, max] = phrase;
-        const r = Math.floor(prng(prngno + j) * (max - min + 1)) + min;
-        const g = Math.floor(prng(prngno + j + 1) * (max - min + 1)) + min;
-        const b = Math.floor(prng(prngno + j + 2) * (max - min + 1)) + min;
+        let r = Math.floor(prng(prngno + j) * (max - min + 1)) + min;
+        let g = Math.floor(prng(prngno + j + 1) * (max - min + 1)) + min;
+        let b = Math.floor(prng(prngno + j + 2) * (max - min + 1)) + min;
         // Convert the numbers to hexadecimal strings and concatenate them
         hexCode = '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
 
