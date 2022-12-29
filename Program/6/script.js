@@ -32,10 +32,11 @@ const ProportionChance = getStringLengths(Phrases);
 const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
-var startTime = new Date();
-var elapsedTime = new Date() - startTime;
-var minutes = Math.floor(elapsedTime / 60000);
-var seconds = Math.floor((elapsedTime % 60000) / 1000);
+const startTime = new Date();
+function getElapsedTime() {
+  var elapsedTime = Date.now() - startTime; // Calculate the elapsed time as the difference between the current time and the start time
+  return elapsedTime;
+}
 
 console.log("Start Time:", startTime);
 
@@ -333,7 +334,7 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
       for (let i = 0; i < ProcessedPhrases.length; i++) {
         metadata += `${i + 1}. ${ProcessedPhrases[i]}\n`;
     }
-  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
+  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}\nStartTime:${startTime}\nElapsedTime:${getElapsedTime()}`;
 
   //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
@@ -358,15 +359,15 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
   console.log(prngno);
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
-    console.log("Colours1 - Done!",  "      ", elapsedTime);
+    console.log("Colours1 - Done!",  "      ", getElapsedTime());
     console.log("ProcessedPhrases: ", ProcessedPhrases);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
-    console.log("Colouring Vertically - Done!",  "      ", elapsedTime);
+    console.log("Colouring Vertically - Done!",  "      ", getElapsedTime());
         for (let i = 0; i < 5; i++) {
             colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
             ctx.scale(4, 4);
-            console.log("Angle Pass:", [i], ":",  "      ", elapsedTime);
+            console.log("Angle Pass:", [i], ":",  "      ", getElapsedTime());
         }
     console.log("fxhash():", prngno, "Phrases:", ProcessedPhrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, ProcessedPhrases, diceQuant, ProportionChance, Pallettes, blendMode);
@@ -378,4 +379,4 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
 // call the drawAndDownload function
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
-console.log("Elapsed Time:", elapsedTime)
+console.log("Elapsed Time:", getElapsedTime())
