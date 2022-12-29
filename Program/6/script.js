@@ -200,7 +200,7 @@ async function initialize() {
 
   ////////
   
-/*function colorCanvas(ctx, Pallette, ProportionChance, blendMode) {
+function colorCanvas(ctx, Pallette, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
   }
@@ -218,7 +218,7 @@ async function initialize() {
     ctx.fillStyle = colors[0];
     ctx.fillRect(x, y, width, height);
   }
-}*/
+}
 
 function colorCanvasAngled(ctx, Pallette, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
@@ -311,8 +311,8 @@ async function draw(ctx, pallette, ProportionChance, blendMode) {
     console.log("ProcessedPhrases: ", ProcessedPhrases);
     console.log("ProjectColors: ", pallette);
 
-    //colorCanvas(ctx, Pallette, ProportionChance, blendMode);
-    //console.log("Colours1 - Done!",  "      ", getElapsedTime());
+    colorCanvas(ctx, Pallette, ProportionChance, blendMode);
+    console.log("Colours1 - Done!",  "      ", getElapsedTime());
     //colorCanvasHorizontal(ctx, Pallette, ProportionChance);
     colorCanvasVertical(ctx, pallette, ProportionChance, blendMode);
     console.log("Colouring Vertically - Done!",  "      ", Math.floor(getElapsedTime() / 1000));
