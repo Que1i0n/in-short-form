@@ -310,7 +310,7 @@ downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, 
   const Pallettes = [];
   let palletteDepth = 3;
   const ProportionChance = getStringLengths(Phrases);
-  const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'saturation'];
+  const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
   const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
  
   const cleanedPhrases = cleanPhrases(Phrases);
