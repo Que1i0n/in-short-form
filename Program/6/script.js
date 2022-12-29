@@ -43,9 +43,7 @@ function getElapsedTime() {
   var elapsedTime = Date.now() - startTime;
   return elapsedTime;
 }
-
 console.log("Start Time:", startTime);
-
 function noZero(prngno) {
   const parts = String(prngno).split('.');
   const digits = parts[1] ? parts[1].split('') : [];
@@ -168,9 +166,6 @@ function tidyPallette(colorArray) {
   const strippedArray = JSON.parse(str);
   return strippedArray;
 }
-
-
-
 async function handlePromise(promise) {
   try {
     const result = await promise;
@@ -179,7 +174,6 @@ async function handlePromise(promise) {
     console.error(error);
   }
 }
-
 async function initialize() {
   const p = await handlePromise(getPhrases());
   const q = await handlePromise(processPhrases(p));
@@ -196,8 +190,6 @@ async function initialize() {
 
   console.log("--------------Initialisation Done--------------")
 }
-
-
   ////////
   
 function colorCanvas(ctx, Pallette, ProportionChance, blendMode) {
@@ -219,7 +211,6 @@ function colorCanvas(ctx, Pallette, ProportionChance, blendMode) {
     ctx.fillRect(x, y, width, height);
   }
 }
-
 function colorCanvasAngled(ctx, Pallette, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
@@ -268,8 +259,6 @@ function colorCanvasVertical(ctx, pallette, ProportionChance, blendMode) {
     }
   }
 }
-
-
 function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, ProportionChance, Pallette, blendMode) {
     
   let metadata = `fxhash:${prngno}\ndice:${diceQuant}\nVerse Index:\n`;
@@ -303,14 +292,11 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
 }
 
 async function draw(ctx, pallette, ProportionChance, blendMode) {
-  // Wait for the loadTexFile() and getPhrases() functions to finish
-  await initialize();
-    console.log("prngno: ", prngno);
-    console.log("Phrases: ", Phrases);
-    console.log("Pallette: ", Pallette);
-    console.log("ProcessedPhrases: ", ProcessedPhrases);
-    console.log("ProjectColors: ", pallette);
-
+    console.log("ctx: ", ctx);
+    console.log("pallette: ", pallette);
+    console.log("ProportionChance: ", ProportionChance);
+    console.log("blendmode: ",blendMode);
+    
     colorCanvas(ctx, Pallette, ProportionChance, blendMode);
     console.log("Colours1 - Done!",  "      ", getElapsedTime());
     //colorCanvasHorizontal(ctx, Pallette, ProportionChance);
@@ -329,5 +315,11 @@ async function draw(ctx, pallette, ProportionChance, blendMode) {
     console.log("Elapsed Time:", Math.floor(getElapsedTime() / 1000));
     console.log("Finish Time: ", currentTime);
 }
+async function main() {
+  await initialize();
+  draw(ctx, ProjectColors, ProportionChance, blendMode);
+}
 
-draw(ctx, ProjectColors, ProportionChance, blendMode);
+main().then(() => {
+  console.log('Done!');
+});
