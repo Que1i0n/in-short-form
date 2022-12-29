@@ -15,12 +15,18 @@ const PhrasesArray = JSON.parse(PhrasesString);
 
 // Iterate over the elements in the PhrasesArray and extract the text between the ':' and the '\r'
 const ProcessedPhrases = PhrasesArray.map(phrase => {
-  const index = phrase.indexOf(':');
-  const processedPhrase = phrase.substring(index + 1, phrase.length - 1);
-  // Find the first space character in the processedPhrase and return the text after it
-  const spaceIndex = processedPhrase.indexOf(' ');
-  return [processedPhrase.substring(spaceIndex + 1)];
+  // Split the string around the ':' character
+  const [numbersString, phrasePart] = phrase.split(':');
+  // Remove the "Ge" prefix from the numbers string
+  const numbersStringWithoutPrefix = numbersString.substring(2);
+  // Concatenate the numbers and convert the result to an integer
+  const number = parseInt(numbersStringWithoutPrefix.replace(/ /g, ''), 10);
+  // Split the phrase part around the ' ' character and take the first element
+  const numberAfterColon = parseInt(phrasePart.split(' ')[0], 10);
+  return [number, numberAfterColon];
 });
+
+
 
 let palletteDepth = 3;
 
@@ -42,7 +48,7 @@ console.log("Start Time:", startTime);
 
 
 
-let hexColorArrays = phraseToHexColors(ProcessedPhrases);
+//let hexColorArrays = phraseToHexColors(ProcessedPhrases);
 
 function noZero(prngno) {
   const parts = String(prngno).split('.');
@@ -102,12 +108,52 @@ function getPhrases(number) {
 }
 
 function generateColors() {
-  console.log("Phrases:", ProcessedPhrases);
+  console.log("Phrases:", JSON.stringify(ProcessedPhrases));
+  const colors = [];
+  for (let i = 0; i < ProcessedPhrases.length; i++) {
+    let phrase = ProcessedPhrases[i];
+    const colorArray = [];
+    console.log("generateColors phrase:", JSON.stringify(phrase));
+    for (let j = 0; j < palletteDepth; j++) {
+      // Convert the phrase to an array of integers if it is not already an array
+      if (!Array.isArray(phrase)) {
+        phrase = [parseInt(phrase, 10)];
+      }
+      // Use a custom PRNG function that seeds the PRNG with the prngno value
+      const prng = seed => {
+        let x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+      };
+      let hexCode;
+      do {
+        // Generate a different random number for each color component
+        const [min, max] = phrase;
+        const r = Math.floor(prng(prngno + j) * (max - min + 1)) + min;
+        const g = Math.floor(prng(prngno + j + 1) * (max - min + 1)) + min;
+        const b = Math.floor(prng(prngno + j + 2) * (max - min + 1)) + min;
+        // Convert the numbers to hexadecimal strings and concatenate them
+        hexCode = '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
+      } while (colorArray.includes(hexCode));
+      // Add the hex code to the color array
+      colorArray.push(hexCode);
+    }
+    // Push the current color array to the colors array
+    colors.push(colorArray);
+    console.log("hexcolors ext: ", JSON.stringify(colorArray));
+  }
+  return colors;
+}
+
+
+/*
+
+function generateColors() {
+  console.log("Phrases:", JSON.stringify(ProcessedPhrases));
   const colors = [];
   for (let i = 0; i < ProcessedPhrases.length; i++) {
     const phrase = ProcessedPhrases[i];
     let hexColors = phraseToHexColors(ProcessedPhrases);
-    console.log("generateColors hexColors:", hexColors);
+    console.log("generateColors hexColors:", JSON.stringify(hexColors));
     const colorArray = [];
     for (let j = 0; j < palletteDepth; j++) {
       // Select a random color from the hexColors array
@@ -115,7 +161,7 @@ function generateColors() {
       colorArray.push(color);
     }
     colors.push(colorArray);
-    console.log(colors);
+    console.log("hexcolors ext: ", JSON.stringify(colors));
   }
   return colors;
 }
@@ -157,7 +203,7 @@ function phraseToHexColors(phrases) {
 
 
 
-/*
+
 function generateColors(phrase) {
   const colors = [];
   const phraseLength = phrase.length;
@@ -246,9 +292,6 @@ function hslToHex(h, s, l) {
   return hex;
 }
 */
-
-
-
 
 
 function getStringLengths(strings) {
@@ -340,8 +383,7 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
   imageLink.href = imageDataURL;
-  imageLink.download =  fileName;  
-  imageLink.setDate(startTime);
+  imageLink.download =  startTime + " - " + fileName;
   document.body.appendChild(imageLink);
   imageLink.click();
   document.body.removeChild(imageLink);
@@ -359,7 +401,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
   console.log(prngno);
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     console.log("Colours1 - Done!",  "      ", getElapsedTime());
-    console.log("ProcessedPhrases: ", ProcessedPhrases);
+    console.log("ProcessedPhrases: ", JSON.stringify(ProcessedPhrases));
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
     console.log("Colouring Vertically - Done!",  "      ", getElapsedTime());
