@@ -406,7 +406,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     console.log("Colours1 - Done!",  "      ", getElapsedTime());
     console.log("ProcessedPhrases: ", JSON.stringify(ProcessedPhrases));
-    console.log("Number of Dice: ", numDice, "  Dice Rolls: ", diceQuant);
+    console.log("Number of Dice: ",  noZero(prngno), "  Dice Rolls: ", diceQuant);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
     console.log("Colouring Vertically - Done!",  "      ", getElapsedTime());
