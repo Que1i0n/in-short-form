@@ -3,8 +3,8 @@ canvas.width = 3840;  // 4K resolution
 canvas.height = 2160;
 const ctx = canvas.getContext("2d");
 
-//let prngno = fxrand();
-let prngno = 0.30123451423451
+let prngno = fxrand();
+//let prngno = 0.30123451423451
 let diceQuant = noZero(prngno);
 let diceRolls = [];
 let Phrases = [];
