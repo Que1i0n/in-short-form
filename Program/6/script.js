@@ -50,8 +50,6 @@ console.log("Start Time:", startTime);
 let Pallettes = generateColors(ProcessedPhrases, palletteDepth, prngno, ProportionChance);
 
 
-//let hexColorArrays = phraseToHexColors(ProcessedPhrases);
-
 function noZero(prngno) {
   const parts = String(prngno).split('.');
   const digits = parts[1] ? parts[1].split('') : [];
@@ -110,6 +108,22 @@ function getPhrases() {
 }
 
 function generateColors(ProcessedPhrases, palletteDepth, prngno, ProportionChance) {
+  // Helper function to convert an HSL value array to a string
+  function hslToString(hsl) {
+    const [hue, saturation, lightness] = hsl;
+    return `hsl(${hue},${saturation}%,${lightness}%)`;
+  }
+
+  // Modify the color arrays to contain HSL strings instead of HSL arrays
+  function modifyColorArrays(colorArrays) {
+    return colorArrays.map(colors => {
+      return colors.map(hsl => {
+        const [hue, saturation, lightness] = hsl;
+        return `hsl(${hue},${saturation}%,${lightness}%)`;
+      });
+    });
+  }
+
   const colors = [];
   for (let i = 0; i < ProcessedPhrases.length; i++) {
     let phrase = ProcessedPhrases[i];
@@ -124,236 +138,34 @@ function generateColors(ProcessedPhrases, palletteDepth, prngno, ProportionChanc
         let x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
       };
-      let hexCode;
+      let hsl;
       do {
         // Generate a different random number for each color component
         const [min, max] = phrase;
-        let r = Math.floor(prng(prngno + j) * (max - min + 1)) + min;
-        let g = Math.floor(prng(prngno + j + 1) * (max - min + 1)) + min;
-        let b = Math.floor(prng(prngno + j + 2) * (max - min + 1)) + min;
-        // Convert the RGB values to HSL
-        let h, s, l;
-        [h, s, l] = rgbToHsl(r, g, b);
+        let hue = Math.floor(prng(prngno + j) * (max - min + 1)) + min;
+        let saturation = Math.floor(prng(prngno + j + 2) * (max - min + 1)) + min;
+        let lightness = Math.floor(prng(prngno + j + 2) * (max - min + 1)) + min;
         // Increase the saturation and lightness values by the desired amount
-        s = s + (s * 0.75);
-        l = l + (l * 0.2);
-        // Convert the modified HSL values back to RGB
-        [r, g, b] = hslToRgb(h, s, l);
-        // Convert the numbers to hexadecimal strings and concatenate them
-        hexCode = '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
-      } while (colorArray.includes(hexCode));
-      colorArray.push(hexCode);
+        saturation = saturation + (saturation * 0.75);
+        lightness = lightness + (lightness * 0.2);
+        // Create the HSL value as an array of integers
+        hsl = [hue, saturation, lightness];
+      } while (colorArray.includes(hsl));
+      colorArray.push(hsl);
     }
-    colors.push(colorArray);
-    console.log("generateColors result: ", JSON.stringify(colors));
-  }
+    // Modify the color array to contain HSL strings instead of HSL arrays
+    colors.push(modifyColorArrays([colorArray]));
+  }    
+  console.log("generateColours result: ", JSON.stringify(colors));
+  
+  // Return the modified color arrays
   return colors;
+  
 }
-
-function rgbToHsl(r, g, b) {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-
-  if (max === min) {
-    h = s = 0;
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
-
-  return [h, s, l];
-}
-
-function hslToRgb(h, s, l) {
-  let r, g, b;
-
-  if (s === 0) {
-    r = g = b = l;
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1 / 3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1 / 3);
-  }
-
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-
-
-/*
-
-function generateColors() {
-  console.log("Phrases:", JSON.stringify(ProcessedPhrases));
-  const colors = [];
-  for (let i = 0; i < ProcessedPhrases.length; i++) {
-    const phrase = ProcessedPhrases[i];
-    let hexColors = phraseToHexColors(ProcessedPhrases);
-    console.log("generateColors hexColors:", JSON.stringify(hexColors));
-    const colorArray = [];
-    for (let j = 0; j < palletteDepth; j++) {
-      // Select a random color from the hexColors array
-      const color = hexColors[Math.floor(fxrand() * hexColors.length)];
-      colorArray.push(color);
-    }
-    colors.push(colorArray);
-    console.log("hexcolors ext: ", JSON.stringify(colors));
-  }
-  return colors;
-}
-
-function phraseToHexColors(phrases) {
-  const hexColorArrays = [];
-
-  // Iterate over the phrases in the array
-  for (let i = 0; i < phrases.length; i++) {
-    let phrase = phrases[i];
-
-    // Convert the phrase to a string if it is not a string
-    if (typeof phrase !== 'string') {
-      phrase = phrase.toString();
-    }
-
-    // Split the phrase into an array of characters
-    const chars = phrase.split('');
-
-    // Iterate over the characters in the phrase
-    const currentHexColors = chars.map(char => {
-      // Convert the character to its ASCII code
-      const asciiCode = char.charCodeAt(0);
-      // Convert the ASCII code to a hexadecimal code
-      let hexCode = asciiCode.toString(16);
-
-      // Pad the hex code with leading zeros if it is less than 6 digits long
-      while (hexCode.length < 6) {
-        hexCode = hexCode.substring(0, 2) + hexCode.substring(2, 4) + hexCode.substring(4, 6);
-      return '#' + hexCode;
-  }});
-
-    // Push the currentHexColors array to the hexColorArrays array
-    hexColorArrays.push(currentHexColors);
-  }
-
-  return hexColorArrays;
-}
-
-
-
-
-function generateColors(phrase) {
-  const colors = [];
-  const phraseLength = phrase.length;
-  const hexColors = sentenceToHexColors(phrase);
-
-  // Select a random color from the hexColors array
-  const baseColor = hexColors[Math.floor(fxrand() * hexColors.length)];
-  colors.push(baseColor);
-
-  // Convert the base color to RGB values
-  const baseColorRGB = hexToRGB(baseColor);
-
-  // Generate the remaining colors by rotating the hue of the base color
-  for (let i = 1; i < palletteDepth; i++) {
-    const hue = (baseColorRGB.h + (30 * i)) % 360;
-    const color = hslToHex(hue, baseColorRGB.s, baseColorRGB.l);
-    colors.push(color);
-  }
-
-  return colors;
-}
-
-function hexToRGB(hex) {
-  // Extract the R, G, and B values from the hex code
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-
-  // Convert the RGB values to HSL
-  return rgbToHSL(r, g, b);
-}
-
-function rgbToHSL(r, g, b) {
-  // Convert the RGB values to 0-1 range
-  r /= 255;
-  g /= 255;
-  b /= 255;
-
-  // Find the min and max values
-  const min = Math.min(r, g, b);
-  const max = Math.max(r, g, b);
-
-  // Calculate the hue, saturation, and lightness
-  let h, s, l = (max + min) / 2;
-  if (max === min) {
-    h = s = 0; // achromatic
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
-
-  // Return the HSL values as an object
-  return { h: h * 360, s: s, l: l };
-}
-
-function hslToHex(h, s, l) {
-  // Convert the HSL values to RGB
-  let r, g, b;
-  if (s === 0) {
-    r = g = b = l; // achromatic
-  } else {
-    const hue2rgb = function hue2rgb(p, q, t) {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1/6) return p + (q - p) * 6 * t;
-      if (t < 1/2) return q;
-      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-      return p;
-    };
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1/3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1/3);
-  }
-
-  // Convert the RGB values to hex code
-  const hex = "#" + Math.round(r * 255).toString(16) + Math.round(g * 255).toString(16) + Math.round(b * 255).toString(16);
-  return hex;
-}
-*/
-
 
 function getStringLengths(strings) {
 const totalLength = strings.reduce((sum, str) => sum + str.length, 0);
 const proportionSum = strings.reduce((sum, str) => sum + (str.length / totalLength), 0);
-// does strings.map convert the values being produced to strings, or does it leave them as numbers?
 return strings.map(str => (str.length / totalLength) / proportionSum * 100);
 }
 
@@ -530,4 +342,4 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
 // call the drawAndDownload function
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
-console.log("Elapsed Time:", getElapsedTime())
+console.log("Elapsed Time:", getElapsedTime());
