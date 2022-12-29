@@ -231,57 +231,40 @@ for (let i = 0; i < Pallettes.length; i++) {
 }
 console.log(blendMode);
 }
-// const angle = (ProportionChance[i] / prngno) * 360;
-// ctx.rotate(angle);
 
 function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
-// for loop that goes through each index of ProportionChance
-for (let i = 0; i < ProportionChance.length; i++) {
-  // convert the proportion chance at index i to an angle in degrees, scaled by prngno
-  const angle = (ProportionChance[i] / prngno) * 360;
-  // rotate the canvas by angle
-  ctx.rotate(angle);
-
-
-  // totalPercentage should equal 0, verify this?
+  for (let i = 0; i < ProportionChance.length; i++) {
+    const angle = (ProportionChance[i] / prngno) * 360;
+    ctx.rotate(angle);
     const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  
-  // this should throw an error if totalPercentage equals 0?
-  const segmentHeight = canvas.width / totalPercentage;
-
-  // go through each colour in Pallettes
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];
-    
-    // angle is being redefined here, using totalPercentage instead of random number, thus angle = Infinity
-    const angle = (ProportionChance[i] / totalPercentage) * 360;
-
-    // Set the blend mode for the current segment (now defined at the bottom and passed to this function as a parameter)
-    ctx.globalCompositeOperation = blendMode;
-
-
-    for (let y = 0; y < canvas.width; y++) {
+      return sum + parseInt(percentage);
+    }, 0);
+    const segmentHeight = canvas.width / totalPercentage;
+    for (let i = 0; i < Pallettes.length; i++) {
+      const colors = Pallettes[i];
+      const angle = (ProportionChance[i] / totalPercentage) * 360;
+      ctx.globalCompositeOperation = blendMode;
+      for (let y = 0; y < canvas.width; y++) {
         for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
-        // if angle is Inifinity, this line should throw a RangeError
           ctx.rotate(angle);
           const color = colors[Math.floor(prngno * colors.length)];
           ctx.fillStyle = color;
           ctx.fillRect(x, y, 1, 1);
         }
+      }
+      ctx.rotate(-angle);
     }
-
-    ctx.rotate(-angle);
   }
-}
 }
 
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
-  isCalculating = true;
-  statusMessage = 'Downloading canvas and metadata';
+  let metadata = `fxhash:${prngno}\nPhrases:\n`;
+      for (let i = 0; i < Phrases.length; i++) {
+        metadata += `${i + 1}. ${Phrases[i]}\n`;
+    }
+  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
-  const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
+  //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
@@ -299,20 +282,21 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   document.body.appendChild(metadataLink);
   metadataLink.click();
   document.body.removeChild(metadataLink);
-
-  isCalculating = false;
-  statusMessage = 'Canvas and metadata download complete';
 }
-
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
-colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
-for (let i = 0; i < 5; i++) {
-colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
-ctx.scale(4, 4);
+    colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
+    //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+    colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
+
+        for (let i = 0; i < 5; i++) {
+            colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
+            ctx.scale(4, 4);
+            console.log("Angle Pass:", [i]);
+        }
+    console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
+    downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 }
-downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
-}
+  
 
 const canvas = document.getElementById("canvas");
 canvas.width = 3840;  // 4K resolution
