@@ -47,6 +47,16 @@ function getPhrases(filePath, number) {
   return reading;
 }
 
+function cleanPhrases(phrases) {
+    const cleanedPhrases = [];
+    for (const phrase of phrases) {
+      // Use a regular expression to match and remove the pattern "some characters, a number a : and another number and a space" from the start of the phrase
+      const cleanedPhrase = phrase.replace(/^[a-zA-Z]+\d+:\d+\s/, '');
+      cleanedPhrases.push(cleanedPhrase);
+    }
+    return cleanedPhrases;
+  }
+
 function sentenceToHexColors(sentence) {
   const hexColors = [];
   const chars = sentence.split('');  
@@ -302,6 +312,17 @@ downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, 
   const ProportionChance = getStringLengths(Phrases);
   const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'saturation'];
   const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
+ 
+  const cleanedPhrases = cleanPhrases(Phrases);
+
+  // Generate the hexadecimal color codes for each cleaned phrase
+  cleanedPhrases.forEach(phrase => {
+    const hexColors = sentenceToHexColors(phrase);
+    // Select a random subset of colors using the getRandomColors function
+    const shortenedColors = getRandomColors(hexColors, palletteDepth);
+    Pallettes.push(shortenedColors);
+  });
+
   Phrases.forEach(phrase => {
     const hexColors = sentenceToHexColors(phrase);
     const shortenedColors = getRandomColors(hexColors, palletteDepth, prngno);  // <--- colour pallette depth
