@@ -98,13 +98,14 @@ function getPhrases(number) {
   rawFile.send(null);
   return reading;
 }
+
 function generateColors() {
   console.log("Phrases:", ProcessedPhrases);
   const colors = [];
   for (let i = 0; i < ProcessedPhrases.length; i++) {
     const phrase = ProcessedPhrases[i];
     let hexColors = phraseToHexColors(ProcessedPhrases);
-    console.log("generateColors hexColors:", hexColors)
+    console.log("generateColors hexColors:", hexColors);
     const colorArray = [];
     for (let j = 0; j < palletteDepth; j++) {
       // Select a random color from the hexColors array
@@ -112,6 +113,7 @@ function generateColors() {
       colorArray.push(colors);
     }
     colors.push(colorArray);
+    console.log(colors);
   }
   return colors;
 }
@@ -337,7 +339,8 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
   imageLink.href = imageDataURL;
-  imageLink.download =  fileName + "    " + startTime;  
+  imageLink.download =  fileName;  
+  imageLink.setDate(startTime);
   document.body.appendChild(imageLink);
   imageLink.click();
   document.body.removeChild(imageLink);
