@@ -3,7 +3,9 @@ canvas.width = 3840;  // 4K resolution
 canvas.height = 2160;
 const ctx = canvas.getContext("2d");
 
-let prngno = fxrand();
+//let prngno = fxrand();
+
+let prngno = 0.30123451423451
 let diceQuant = noZero(prngno);
 let diceRolls = [];
 
@@ -47,7 +49,8 @@ function getElapsedTime() {
 }
 
 console.log("Start Time:", startTime);
-let Pallettes = generateColors(ProcessedPhrases, palletteDepth, prngno, ProportionChance);
+let Pallettestemp = generateColors(ProcessedPhrases, palletteDepth, prngno, ProportionChance);
+const Pallettes = Pallettestemp.reduce((acc, val) => acc.concat(val), []);
 
 
 function noZero(prngno) {
@@ -238,7 +241,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   }
 }
 
-function drawBoxes(colorArray, boxSize = 100) {
+function drawBoxes(colorArray, boxSize) {
   // Get the canvas element
   const canvas = document.getElementById("canvas");
   // Set the width and height of the canvas to match the size of the color array
@@ -287,9 +290,9 @@ function drawBoxes(colorArray, boxSize = 100) {
 
 function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, ProportionChance, Pallettes, blendMode) {
     
-  let metadata = `fxhash:${prngno}\ndice:${diceQuant}\n\nVerse Index:\n`;
+  let metadata = `fxhash:${prngno}\ndice:${diceQuant}\nVerse Index:\n`;
       for (let i = 0; i < ProcessedPhrases.length; i++) {
-        metadata += `${i + 1}. ${ProcessedPhrases[i]}\n\n`;
+        metadata += `${i + 1}. ${ProcessedPhrases[i]}`;
     }
     metadata += `Phrases:\n`;
     for (let i = 0; i < PhrasesString.length; i++) {
@@ -321,6 +324,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     console.log("Colours1 - Done!",  "      ", getElapsedTime());
     console.log("ProcessedPhrases: ", JSON.stringify(ProcessedPhrases));
+    console.log("Pallettes: ", JSON.stringify(Pallettes));
     console.log("Number of Dice: ",  diceQuant, "  Dice Rolls: ", diceRolls);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
@@ -330,8 +334,8 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
             ctx.scale(4, 4);
             console.log("Angle Pass:", [i], ":",  "      ", getElapsedTime());
         }
-        drawBoxes(colorArray);
-        console.log("Pallette Pass: ", getElapsedTime());
+       // drawBoxes(Pallettes, 100);
+      //  console.log("Pallette Pass: ", getElapsedTime());
     console.log("fxhash():", prngno, "Phrases:", ProcessedPhrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, ProcessedPhrases, diceQuant, ProportionChance, Pallettes, blendMode);
 }
