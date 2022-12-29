@@ -44,7 +44,7 @@ const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 const startTime = new Date();
 function getElapsedTime() {
-  var elapsedTime = Date.now() - startTime; // Calculate the elapsed time as the difference between the current time and the start time
+  var elapsedTime = Date.now() + startTime; // Calculate the elapsed time as the difference between the current time and the start time
   return elapsedTime;
 }
 
@@ -294,9 +294,9 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
       for (let i = 0; i < ProcessedPhrases.length; i++) {
         metadata += `${i + 1}. ${ProcessedPhrases[i]}`;
     }
-    metadata += `Phrases:\n`;
+    metadata += `\nPhrases:\n`;
     for (let i = 0; i < PhrasesString.length; i++) {
-      metadata += `${i + 1}. ${PhrasesString[i]}\n`;
+      metadata += `${i + 1}. ${PhrasesString[i]}`;
   }
     metadata += `\nProportionChance:\n${ProportionChance}\nPallettes:\n${JSON.stringify(Pallettes)}\nblendMode:${blendMode}\nStartTime:${startTime}\nElapsedTime:${startTime + getElapsedTime()}`;
   
