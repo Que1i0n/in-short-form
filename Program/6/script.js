@@ -193,7 +193,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
   imageLink.href = imageDataURL;
-  imageLink.download = fileName;
+  imageLink.download =  startTime, fileName;
   document.body.appendChild(imageLink);
   imageLink.click();
   document.body.removeChild(imageLink);
@@ -209,9 +209,10 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
 }
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
+    console.log("Colours1 - Done!",  "        Elapsed time: " + minutes + " minutes " + seconds + " seconds")
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
-
+    console.log("Colouring Vertically - Done!",  "        Elapsed time: " + minutes + " minutes " + seconds + " seconds")
         for (let i = 0; i < 5; i++) {
             colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
             ctx.scale(4, 4);
@@ -256,5 +257,3 @@ console.log("Start Time:", startTime);
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
 console.log("Elapsed Time:", elapsedTime)
-
-// console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "Colours:", Pallettes);
