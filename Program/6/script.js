@@ -372,12 +372,16 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
 
 function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, ProportionChance, Pallettes, blendMode) {
     
-  let metadata = `fxhash:${prngno}\nPhrases:\n`;
+  let metadata = `fxhash:${prngno}\ndice:${diceQuant}\n\nVerse Index:\n`;
       for (let i = 0; i < ProcessedPhrases.length; i++) {
         metadata += `${i + 1}. ${ProcessedPhrases[i]}\n`;
     }
-  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}\nStartTime:${startTime}\nElapsedTime:${getElapsedTime()}`;
-
+    metadata += `\n\nPhrases:\n`;
+    for (let i = 0; i < PhrasesString.length; i++) {
+      metadata += `${i + 1}. ${PhrasesString[i]}\n`;
+  }
+    metadata += `\nProportionChance:\n${ProportionChance}\nPallettes:\n${JSON.stringify(Pallettes)}\nblendMode:${blendMode}\nStartTime:${startTime}\nElapsedTime:${startTime + getElapsedTime()}`;
+  
   //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
   const imageDataURL = canvas.toDataURL();
@@ -402,6 +406,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     console.log("Colours1 - Done!",  "      ", getElapsedTime());
     console.log("ProcessedPhrases: ", JSON.stringify(ProcessedPhrases));
+    console.log("Number of Dice: ", numDice, "  Dice Rolls: ", diceQuant);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
     console.log("Colouring Vertically - Done!",  "      ", getElapsedTime());
