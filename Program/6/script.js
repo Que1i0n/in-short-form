@@ -36,12 +36,12 @@ let ProportionChance = [];
 const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
-const startTime = new Date();
-var currentTime = new Date();
+const startTime = Date.now();
+
 function getElapsedTime() {
-  // Calculate the elapsed time as the difference between the current time and the start time
-  var elapsedTime = Date.now() - startTime;
-  return elapsedTime;
+  const elapsedTime = Date.now() - startTime;
+  const elapsedTimeInSeconds = elapsedTime / 1000;
+  return elapsedTimeInSeconds;
 }
 console.log("Start Time:", startTime);
 function noZero(prngno) {
@@ -312,8 +312,9 @@ async function draw(ctx, pallette, ProportionChance, blendMode) {
       //  console.log("Pallette Pass: ", getElapsedTime());
     console.log("fxhash():", prngno, "Phrases:", ProcessedPhrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallette:", Pallette, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, ProcessedPhrases, diceQuant, ProportionChance, pallette, blendMode);
-    console.log("Elapsed Time:", Math.floor(getElapsedTime() / 1000));
-    console.log("Finish Time: ", currentTime);
+    const finishTime = new Date();
+    console.log("Finish Time: ", finishTime.toString());
+    console.log("Elapsed Time: ", getElapsedTime(), "seconds");
 }
 async function main() {
   await initialize();
