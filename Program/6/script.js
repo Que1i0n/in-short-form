@@ -112,13 +112,49 @@ function generateColors() {
     for (let j = 0; j < palletteDepth; j++) {
       // Select a random color from the hexColors array
       const color = hexColors[Math.floor(fxrand() * hexColors.length)];
-      colorArray.push(colors);
+      colorArray.push(color);
     }
     colors.push(colorArray);
     console.log(colors);
   }
   return colors;
 }
+
+function phraseToHexColors(phrases) {
+  const hexColorArrays = [];
+
+  // Iterate over the phrases in the array
+  for (let i = 0; i < phrases.length; i++) {
+    let phrase = phrases[i];
+
+    // Convert the phrase to a string if it is not a string
+    if (typeof phrase !== 'string') {
+      phrase = phrase.toString();
+    }
+
+    // Split the phrase into an array of characters
+    const chars = phrase.split('');
+
+    // Iterate over the characters in the phrase
+    const currentHexColors = chars.map(char => {
+      // Convert the character to its ASCII code
+      const asciiCode = char.charCodeAt(0);
+      // Convert the ASCII code to a hexadecimal code
+      let hexCode = asciiCode.toString(16);
+
+      // Pad the hex code with leading zeros if it is less than 6 digits long
+      while (hexCode.length < 6) {
+        hexCode = hexCode.substring(0, 2) + hexCode.substring(2, 4) + hexCode.substring(4, 6);
+      return '#' + hexCode;
+  }});
+
+    // Push the currentHexColors array to the hexColorArrays array
+    hexColorArrays.push(currentHexColors);
+  }
+
+  return hexColorArrays;
+}
+
 
 
 /*
@@ -211,43 +247,6 @@ function hslToHex(h, s, l) {
 }
 */
 
-
-function phraseToHexColors(phrases) {
-  const hexColorArrays = [];
-
-  // Iterate over the phrases in the array
-  for (let i = 0; i < phrases.length; i++) {
-    let phrase = phrases[i];
-
-    // Convert the phrase to a string if it is not a string
-    if (typeof phrase !== 'string') {
-      phrase = phrase.toString();
-    }
-
-    // Split the phrase into an array of characters
-    const chars = phrase.split('');
-
-    // Iterate over the characters in the phrase
-    const currentHexColors = chars.map(char => {
-      // Convert the character to its ASCII code
-      const asciiCode = char.charCodeAt(0);
-      // Convert the ASCII code to a hexadecimal code
-      let hexCode = asciiCode.toString(16);
-
-      // Pad the hex code with leading zeros if it is less than 6 digits long
-      while (hexCode.length < 6) {
-        hexCode = '0' + hexCode;
-      }
-
-      return '#' + hexCode;
-    });
-
-    // Push the currentHexColors array to the hexColorArrays array
-    hexColorArrays.push(currentHexColors);
-  }
-
-  return hexColorArrays;
-}
 
 
 
