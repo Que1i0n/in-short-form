@@ -215,7 +215,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
         for (let i = 0; i < 5; i++) {
             colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
             ctx.scale(4, 4);
-            console.log("Angle Pass:", [i]);
+            console.log("Angle Pass:", [i], ":", "        Elapsed time: " + minutes + " minutes " + seconds + " seconds");
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
@@ -236,6 +236,10 @@ const ProportionChance = getStringLengths(Phrases);
 const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
+var startTime = new Date();
+var elapsedTime = new Date() - startTime;
+var minutes = Math.floor(elapsedTime / 60000);
+var seconds = Math.floor((elapsedTime % 60000) / 1000);
 
 Phrases.forEach(phrase => {
 // translates the phrase into an array of hexadecimal colours
@@ -246,7 +250,11 @@ const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colo
 Pallettes.push(shortenedColors);
 });
 
+console.log("Start Time:", startTime);
+
 // call the drawAndDownload function
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
-console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "Colours:", Pallettes);
+console.log("Elapsed Time:", elapsedTime)
+
+// console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "Colours:", Pallettes);
