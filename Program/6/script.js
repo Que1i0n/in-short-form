@@ -277,21 +277,31 @@ for (let i = 0; i < ProportionChance.length; i++) {
 }
 }
 
-function downloadCanvas(fileName) {
-// get the canvas content as a data URL
-  const dataURL = canvas.toDataURL();
+function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
+  isCalculating = true;
+  statusMessage = 'Downloading canvas and metadata';
 
-  // create a link element and set its href to the data URL
-  const link = document.createElement("a");
-  link.href = dataURL;
-  link.download = fileName;
+  const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
-  // add the link to the document and click it to trigger the download
-  document.body.appendChild(link);
-  link.click();
+  const imageDataURL = canvas.toDataURL();
+  const imageLink = document.createElement("a");
+  imageLink.href = imageDataURL;
+  imageLink.download = fileName;
+  document.body.appendChild(imageLink);
+  imageLink.click();
+  document.body.removeChild(imageLink);
 
-  // remove the link from the document
-  document.body.removeChild(link);
+  const metadataBlob = new Blob([metadata], {type: 'text/plain'});
+  const metadataUrl = URL.createObjectURL(metadataBlob);
+  const metadataLink = document.createElement("a");
+  metadataLink.href = metadataUrl;
+  metadataLink.download = `${fileName}.txt`;
+  document.body.appendChild(metadataLink);
+  metadataLink.click();
+  document.body.removeChild(metadataLink);
+
+  isCalculating = false;
+  statusMessage = 'Canvas and metadata download complete';
 }
 
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
@@ -301,7 +311,7 @@ for (let i = 0; i < 5; i++) {
 colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode);
 ctx.scale(4, 4);
 }
-downloadCanvas(fxhash);
+downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 }
 
 const canvas = document.getElementById("canvas");
