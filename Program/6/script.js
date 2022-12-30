@@ -194,15 +194,31 @@ async function initialize() {
   function processArrays(colours, chances) {
     const result = [];
     // Iterate over the ProportionChance array
-    for (let i = 0; i < chances[0].length; i++) {
-      const proportion = chances[0][i];
-      const colors = colours[0][i];
+    for (let i = 0; i < chances.length; i++) {
+      const proportion = chances[i];
+      let colors = colours[i];
+      // Check that each number in the HSL color strings is within the specified range
+      colors = colors.map(color => {
+        const [h, s, l] = color.match(/\d+/g).map(value => String(value)); // extract HSL values from the color string and convert them to strings
+        if (h > 360 || s > 100 || l > 100) { // if any value is out of range
+          const digits = color.match(/\d/g).map(Number); // extract the digits from the color value
+          let sum = digits.reduce((a, b) => a + b, 0); // sum the digits
+          while (sum > 360 || sum > 100) { // while the sum is out of range
+            sum = digits.reduce((a, b) => a + b, 0); // sum the digits again
+          }
+          return sum; // return the sum
+        }
+        return color; // return the color if it's within range
+      });
+      // Make sure that no color is less than or equal to 0
+      colors = colors.map(color => Math.max(color, 1));
       // Push the proportion and colors to the result array
       result.push([proportion, colors]);
     }
     return result;
   }
-    
+  
+      
   function colorCanvas(ctx, processed, blendMode) {
     // Initialize total percentage to 0
     let totalPercentage = 0;
@@ -233,7 +249,6 @@ async function initialize() {
   
   function colorCanvasAngled(ctx, processed, blendMode) {
     // Iterate over the processed array
-
     for (let i = 0; i < processed.length; i++) {
       const x = i * canvas.width;
       const y = 0;
@@ -249,31 +264,26 @@ async function initialize() {
         totalPercentage += processed[j][0];
       }
       const segmentHeight = canvas.width / totalPercentage;
-      // Iterate over the colors in the palette
-      for (let j = 0; j < colors.length; j++) {
-        // Calculate the angle based on the proportion and total percentage
-        const angle = (proportion / totalPercentage) * 360;
-        // Create a linear gradient using the colors array
-        const gradient = ctx.createLinearGradient(x, y, x + canvas.width, y + canvas.height);
-        for (let j = 0; j < colors.length; j++) {
-          gradient.addColorStop(j / (colors.length - 1), colors[j]);
-        }
-        // Set the blend mode
-        ctx.globalCompositeOperation = blendMode;
-        // Iterate over the y coordinates
-        for (let y = 0; y < canvas.width; y++) {
-          // Iterate over the x coordinates
-          for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
-            ctx.rotate(angle);
-            ctx.fillStyle = gradient;
-            ctx.fillRect(x, y, 1, 1);
+      // Iterate over the y coordinates
+      for (let y = 0; y < canvas.width; y++) {
+        // Iterate over the x coordinates
+        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+          ctx.rotate(angle);
+          // Choose a random color from the colors array
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          // Set the blend mode and fill style, and fill the pixel
+          ctx.globalCompositeOperation = blendMode;
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, 1, 1);
+          // Rotate the canvas
+  
             // Rotate the canvas back to its original orientation
             ctx.rotate(-angle);
           }
         }
       }
     }
-  }
+  
   
   function colorCanvasVertical(ctx, processed, blendMode) {
     // Initialize total percentage to 0
@@ -335,8 +345,8 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
 }
 
 async function draw(ctx, pallette, ProportionChance, blendMode) {
-    console.log("ctx: ", ctx);
-    console.log("pallette: ", JSON.stringify(pallette));
+    console.log( `fxrand: `, prngno);
+    console.log("Pallettes: ", JSON.stringify(pallette));
     console.log("ProportionChance: ", JSON.stringify(ProportionChance));
     console.log("blendmode: ",blendMode);
     const processed = processArrays(ProjectColors, ProportionChance);

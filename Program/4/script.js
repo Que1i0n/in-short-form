@@ -209,7 +209,7 @@ const Phrases = getPhrases("Genesis.txt", diceQuant);
 const Pallettes = [];
 let palletteDepth = 3;
 const ProportionChance = getStringLengths(Phrases);
-const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
+const blendModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 const cleanedPhrases = cleanPhrases(Phrases);
