@@ -109,7 +109,14 @@ function nozero(prngno) {
   console.error('No non-zero digits found');
   return 1;
 }
-
+function triggerReload(){
+      // Create a new element
+      var element = document.createElement("p");
+      // Set the element's content
+      element.innerHTML = "This is a new element created using JavaScript";
+        // Append the element to the container element
+      document.getElementById("container").appendChild(element);
+}
 
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
@@ -286,6 +293,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+    triggerReload();
 }
 
 
