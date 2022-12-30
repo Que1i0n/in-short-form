@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 
 # Create a new Chrome browser and go to the specified page
 driver = webdriver.Chrome()
-driver.get("http://127.0.0.1:5500/Program/4/index.html")
+driver.get("http://127.0.0.1:5500/Program/4/")
 
 # Wait until the specified element is present on the page
 wait = WebDriverWait(driver, 1500) # Wait up to 10 seconds
