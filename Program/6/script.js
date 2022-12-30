@@ -191,74 +191,117 @@ async function initialize() {
   console.log("--------------Initialisation Done--------------")
 }
   ////////
-  
-function colorCanvas(ctx, Pallette, ProportionChance, blendMode) {
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
+  function processArrays(colours, chances) {
+    const result = [];
+    // Iterate over the ProportionChance array
+    for (let i = 0; i < chances[0].length; i++) {
+      const proportion = chances[0][i];
+      const colors = colours[0][i];
+      // Push the proportion and colors to the result array
+      result.push([proportion, colors]);
+    }
+    return result;
   }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
-  for (let i = 0; i < Pallette.length; i++) {
-    const colors = Pallette[i];   
-    const x = canvas.width > canvas.height ? i * segmentSize : 0;
-    const y = canvas.width > canvas.height ? 0 : i * segmentSize;
-    const width = canvas.width > canvas.height ? segmentSize * parseInt(ProportionChance[i]) : canvas.width;
-    const height = canvas.width > canvas.height ? canvas.height : segmentSize * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    ctx.fillStyle = colors[0];
-    ctx.fillRect(x, y, width, height);
-  }
-}
-function colorCanvasAngled(ctx, Pallette, ProportionChance, blendMode) {
-  for (let i = 0; i < ProportionChance.length; i++) {
-    const angle = (ProportionChance[i] / prngno) * 360;
-    ctx.rotate(angle);
-    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-      return sum + parseInt(percentage);
-    }, 0);
-    const segmentHeight = canvas.width / totalPercentage;
-    for (let i = 0; i < Pallette.length; i++) {
-      const colors = Pallette[i];
-      const angle = (ProportionChance[i] / totalPercentage) * 360;
+    
+  function colorCanvas(ctx, processed, blendMode) {
+    // Initialize total percentage to 0
+    let totalPercentage = 0;
+    // Iterate over the processed array
+    for (let i = 0; i < processed.length; i++) {
+      const proportion = processed[i][0];
+      const colors = processed[i][1];
+      // Add the proportion to the total percentage
+      totalPercentage += proportion;
+      // Calculate the segment size based on the total percentage
+      const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
+      // Calculate the x and y coordinates and the width and height based on the orientation of the canvas
+      const x = canvas.width > canvas.height ? i * segmentSize : 0;
+      const y = canvas.width > canvas.height ? 0 : i * segmentSize;
+      const width = canvas.width > canvas.height ? segmentSize * proportion : canvas.width;
+      const height = canvas.width > canvas.height ? canvas.height : segmentSize * proportion;
+      // Create a linear gradient using the colors array
+      const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+      for (let j = 0; j < colors.length; j++) {
+        gradient.addColorStop(j / (colors.length - 1), colors[j]);
+      }
+      // Set the blend mode and fill style, and fill the rectangle
       ctx.globalCompositeOperation = blendMode;
-      for (let y = 0; y < canvas.width; y++) {
-        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
-          ctx.rotate(angle);
-          const color = colors[Math.floor(prngno * colors.length)];
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, 1, 1);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x, y, width, height);
+    }
+  }
+  
+  function colorCanvasAngled(ctx, processed, blendMode) {
+    // Iterate over the processed array
+
+    for (let i = 0; i < processed.length; i++) {
+      const x = i * canvas.width;
+      const y = 0;
+      const proportion = processed[i][0];
+      const colors = processed[i][1];
+      // Calculate the angle based on the proportion and prngno
+      const angle = (proportion / prngno) * 360;
+      // Rotate the canvas
+      ctx.rotate(angle);
+      // Calculate the total percentage and segment height
+      let totalPercentage = 0;
+      for (let j = 0; j <= i; j++) {
+        totalPercentage += processed[j][0];
+      }
+      const segmentHeight = canvas.width / totalPercentage;
+      // Iterate over the colors in the palette
+      for (let j = 0; j < colors.length; j++) {
+        // Calculate the angle based on the proportion and total percentage
+        const angle = (proportion / totalPercentage) * 360;
+        // Create a linear gradient using the colors array
+        const gradient = ctx.createLinearGradient(x, y, x + canvas.width, y + canvas.height);
+        for (let j = 0; j < colors.length; j++) {
+          gradient.addColorStop(j / (colors.length - 1), colors[j]);
+        }
+        // Set the blend mode
+        ctx.globalCompositeOperation = blendMode;
+        // Iterate over the y coordinates
+        for (let y = 0; y < canvas.width; y++) {
+          // Iterate over the x coordinates
+          for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+            ctx.rotate(angle);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, y, 1, 1);
+            // Rotate the canvas back to its original orientation
+            ctx.rotate(-angle);
+          }
         }
       }
-      ctx.rotate(-angle);
     }
   }
-}
-function colorCanvasVertical(ctx, pallette, ProportionChance, blendMode) {
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  const segmentHeight = canvas.width / totalPercentage; 
-  for (let i = 0; i < pallette.length; i++) {
-    const colors = pallette[i];   
-    const y = i * segmentHeight;
-    const width = segmentHeight * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    for (let y = 0; y < canvas.width; y++) {
-      for (let x = i * width; x < (i + 1) * width; x++) {
-        const color = colors[Math.floor(prngno * colors.length)];
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, 1, 1);
+  
+  function colorCanvasVertical(ctx, processed, blendMode) {
+    // Initialize total percentage to 0
+    let totalPercentage = 0;
+    // Iterate over the processed array
+    for (let i = 0; i < processed.length; i++) {
+      const proportion = processed[i][0];
+      const colors = processed[i][1];
+      // Add the proportion to the total percentage
+      totalPercentage += proportion;
+      // Calculate the segment size based on the total percentage
+      const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
+      // Calculate the x and y coordinates and the width and height based on the orientation of the canvas
+      const x = 0;
+      const y = i * segmentSize;
+      const width = canvas.width;
+      const height = segmentSize * proportion;
+      // Set the blend mode and fill style, and fill the rectangle
+      ctx.globalCompositeOperation = blendMode;
+      const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+      for (let j = 0; j < colors.length; j++) {
+        gradient.addColorStop(j / (colors.length - 1), colors[j]);
       }
-      // Draw the current segment to the canvas
-      ctx.drawImage(canvas, 0, 0);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x, y, width, height);
     }
   }
-}
+  
 function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, ProportionChance, Pallette, blendMode) {
     
   let metadata = `fxhash:${prngno}\ndice:${diceQuant}\nVerse Index:\n`;
@@ -269,7 +312,7 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
     for (let i = 0; i < PhrasesString.length; i++) {
       metadata += `${i + 1}. ${PhrasesString[i]}`;
   }
-    metadata += `\nProportionChance:\n${ProportionChance}\nPallettes:\n${JSON.stringify(Pallette)}\nblendMode:${blendMode}\n\nStartTime:${startTime}\nElapsedTime:${startTime + Math.floor(getElapsedTime() / 1000)}\nFinishTime:${currentTime}}`;
+    metadata += `\nProportionChance:\n${ProportionChance}\nPallettes:\n${JSON.stringify(Pallette)}\nblendMode:${blendMode}\n\nStartTime:${startTime}}`;
   
   //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallette)}\nblendMode:${blendMode}`;
 
@@ -293,25 +336,24 @@ function downloadCanvas(fileName, prngno, ProcessedPhrases, diceQuant, Proportio
 
 async function draw(ctx, pallette, ProportionChance, blendMode) {
     console.log("ctx: ", ctx);
-    console.log("pallette: ", pallette);
-    console.log("ProportionChance: ", ProportionChance);
+    console.log("pallette: ", JSON.stringify(pallette));
+    console.log("ProportionChance: ", JSON.stringify(ProportionChance));
     console.log("blendmode: ",blendMode);
-    
-    colorCanvas(ctx, Pallette, ProportionChance, blendMode);
+    const processed = processArrays(ProjectColors, ProportionChance);
+    console.log(JSON.stringify(processed));
+    colorCanvas(ctx, processed, blendMode);
     console.log("Colours1 - Done!",  "      ", getElapsedTime());
     //colorCanvasHorizontal(ctx, Pallette, ProportionChance);
-    colorCanvasVertical(ctx, pallette, ProportionChance, blendMode);
+    colorCanvasVertical(ctx, processed, blendMode);
     console.log("Colouring Vertically - Done!",  "      ", Math.floor(getElapsedTime() / 1000));
         for (let i = 0; i < 5; i++) {
             console.log("Angle Pass:", [i], "Start :",  "      ", Math.floor(getElapsedTime() / 1000));
-            colorCanvasAngled(ctx, pallette, ProportionChance, blendMode);
+            colorCanvasAngled(ctx, processed, blendMode);
             ctx.scale(4, 4);
             console.log("Angle Pass:", [i], " End :",  "      ", Math.floor(getElapsedTime() / 1000));
         }
-       // drawBoxes(Pallette, 100);
-      //  console.log("Pallette Pass: ", getElapsedTime());
     console.log("fxhash():", prngno, "Phrases:", ProcessedPhrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallette:", Pallette, "blendMode:", blendMode);
-    downloadCanvas(fxhash, prngno, ProcessedPhrases, diceQuant, ProportionChance, pallette, blendMode);
+    downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, pallette, blendMode);
     const finishTime = new Date();
     console.log("Finish Time: ", finishTime.toString());
     console.log("Elapsed Time: ", getElapsedTime(), "seconds");
