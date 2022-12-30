@@ -206,7 +206,7 @@ let diceMultiple = 4;
 let diceQuant = 2; 
 
 const Phrases = getPhrases("Genesis.txt", diceQuant);
-const Pallettes = [];
+const Pallettes = [['#000009', '#12140D','#57653F'],['#51154E','672072','#DC40FB'],['#9036FF','#3C2CEF','#5332FE']];
 let palletteDepth = 3;
 const ProportionChance = getStringLengths(Phrases);
 const blendModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
@@ -219,13 +219,13 @@ cleanedPhrases.forEach(phrase => {
     const hexColors = sentenceToHexColors(phrase);
     // Select a random subset of colors using the getRandomColors function
     const shortenedColors = getRandomColors(hexColors, palletteDepth);
-    Pallettes.push(shortenedColors);
+    //Pallettes.push(shortenedColors);
 });
 
 Phrases.forEach(phrase => {
     const hexColors = sentenceToHexColors(phrase);
     const shortenedColors = getRandomColors(hexColors, palletteDepth, prngno);  // <--- colour pallette depth
-    Pallettes.push(shortenedColors);
+    //Pallettes.push(shortenedColors);
 });
 
 console.log(diceQuant, diceMultiple);  
