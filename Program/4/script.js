@@ -1,5 +1,5 @@
   // Derive in Genesis
-  function noZero(prngno) {
+function noZero(prngno) {
     // Shift the decimal place one digit to the right and convert to an integer
     const digit1 = parseInt(prngno * 10);
     // Subtract the integer part to remove it
@@ -88,6 +88,28 @@ function getStringLengths(strings) {
   const proportionSum = strings.reduce((sum, str) => sum + (str.length / totalLength), 0);
   return strings.map(str => (str.length / totalLength) / proportionSum * 100);
 }
+function nozero(prngno) {
+  const parts = String(prngno).split('.');
+  const digits = parts[1] ? parts[1].split('') : [];
+  for (let i = 0; i < digits.length; i++) {
+    if (digits[i] !== '0') {
+      return parseInt(digits[i]);
+    }
+  }
+  if (parts[0]) {
+    const digits = parts[0].split('');
+    for (let i = 0; i < digits.length; i++) {
+      if (digits[i] !== '0') {
+        return parseInt(digits[i]);
+      }
+    }
+  }
+
+  // If no non-zero digits were found, log an error message to the console and return 1
+  console.error('No non-zero digits found');
+  return 1;
+}
+
 
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
@@ -265,7 +287,8 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 }
-  
+
+
 const canvas = document.getElementById("canvas");
 canvas.width = 3840;  // 4K resolution
 canvas.height = 2160;
@@ -273,9 +296,10 @@ const ctx = canvas.getContext("2d");
 
 const pixelBatch = 100;
 
+
 let prngno = fxrand();
-let diceMultiple = 4;
-let diceQuant = 2; 
+//let diceMultiple = 4;
+let diceQuant = nozero(prngno);
 
 const Phrases = getPhrases("Genesis.txt", diceQuant);
 const Pallettes = [['#0F5C46', '#1E6D5F','#1C891D','#A0FD7E','#7FF1F4'],['#5332FE','#9036FF','#FA78E2','#FF5EFF','#F933F7']];
@@ -300,11 +324,11 @@ Phrases.forEach(phrase => {
     //Pallettes.push(shortenedColors);
 });
 
-console.log(diceQuant, diceMultiple);  
 
+console.log(diceQuant);  
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
-console.log("diceQuant:", diceQuant, "diceMultiple:", diceMultiple);
+console.log("diceQuant:", diceQuant);
 
 //---//
 
