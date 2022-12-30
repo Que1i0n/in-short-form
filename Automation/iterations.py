@@ -7,6 +7,7 @@ driver = webdriver.Chrome()
 driver.get("http://127.0.0.1:5500/Program/4/index.html")
 
 # Wait until the specified element is present on the page
+wait = WebDriverWait(driver, 10) # Wait up to 10 seconds
 element = wait.until(EC.presence_of_element_located((By.ID, "element-id")))
 
 # Reload the page a few seconds later
