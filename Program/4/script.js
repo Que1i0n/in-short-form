@@ -88,6 +88,78 @@ function getStringLengths(strings) {
   const proportionSum = strings.reduce((sum, str) => sum + (str.length / totalLength), 0);
   return strings.map(str => (str.length / totalLength) / proportionSum * 100);
 }
+
+function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
+  if (!Array.isArray(ProportionChance)) {
+      ProportionChance = [ProportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+  }, 0);
+  const segmentHeight = canvas.height / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];
+    const y = i * segmentHeight;
+    const height = segmentHeight * parseInt(ProportionChance[i]);
+      for (let x = 0; x < canvas.width; x++) {
+          for (let y = i * height; y < (i + 1) * height; y++) {
+              ctx.fillStyle = colors[x % colors.length];
+              ctx.fillRect(x, y, 1, 1);
+          }
+      }
+  }
+}
+
+function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
+  if (!Array.isArray(ProportionChance)) {
+    ProportionChance = [ProportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+  const segmentHeight = canvas.width / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    const y = i * segmentHeight;
+    const width = segmentHeight * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    for (let y = 0; y < canvas.width; y++) {
+      for (let x = i * width; x < (i + 1) * width; x++) {
+        const color = colors[Math.floor(prngno * colors.length)];
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+}
+
+function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
+  for (let i = 0; i < ProportionChance.length; i++) {
+    const angle = (ProportionChance[i] / prngno) * 360;
+    ctx.rotate(angle);
+    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+    }, 0);
+    const segmentHeight = canvas.width / totalPercentage;
+    for (let i = 0; i < Pallettes.length; i++) {
+      const colors = Pallettes[i];
+      const angle = (ProportionChance[i] / totalPercentage) * 360;
+      ctx.globalCompositeOperation = blendMode;
+      for (let y = 0; y < canvas.width; y++) {
+        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+          ctx.rotate(angle);
+          const color = colors[Math.floor(prngno * colors.length)];
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+      ctx.rotate(-angle);
+    }
+  }
+}
+
+
+
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
@@ -167,7 +239,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
   imageLink.href = imageDataURL;
-  imageLink.download = fileName;
+  imageLink.download = `${fileName} - ${blendMode}`;
   document.body.appendChild(imageLink);
   imageLink.click();
   document.body.removeChild(imageLink);
@@ -184,10 +256,10 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-    colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
+    colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
 
         for (let i = 0; i < 5; i++) {
-            colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
+            colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
             ctx.scale(4, 4);
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
@@ -206,10 +278,10 @@ let diceMultiple = 4;
 let diceQuant = 2; 
 
 const Phrases = getPhrases("Genesis.txt", diceQuant);
-const Pallettes = [['#000009', '#12140D','#57653F'],['#51154E','672072','#DC40FB'],['#9036FF','#3C2CEF','#5332FE']];
+const Pallettes = [['#0F5C46', '#1E6D5F','#1C891D','#A0FD7E','#7FF1F4'],['#5332FE','#9036FF','#FA78E2','#FF5EFF','#F933F7']];
 let palletteDepth = 3;
 const ProportionChance = getStringLengths(Phrases);
-const blendModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference'];
+const blendModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light'];
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 const cleanedPhrases = cleanPhrases(Phrases);
@@ -237,72 +309,4 @@ console.log("diceQuant:", diceQuant, "diceMultiple:", diceMultiple);
 //---//
 
 /*
-function colorCanvasHorizontal(ctx, Pallettes, ProportionChance) {
-  if (!Array.isArray(ProportionChance)) {
-      ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-      return sum + parseInt(percentage);
-  }, 0);
-  const segmentHeight = canvas.height / totalPercentage; 
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];
-    const y = i * segmentHeight;
-    const height = segmentHeight * parseInt(ProportionChance[i]);
-      for (let x = 0; x < canvas.width; x++) {
-          for (let y = i * height; y < (i + 1) * height; y++) {
-              ctx.fillStyle = colors[x % colors.length];
-              ctx.fillRect(x, y, 1, 1);
-          }
-      }
-  }
-}
-
-function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  const segmentHeight = canvas.width / totalPercentage; 
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];   
-    const y = i * segmentHeight;
-    const width = segmentHeight * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    for (let y = 0; y < canvas.width; y++) {
-      for (let x = i * width; x < (i + 1) * width; x++) {
-        const color = colors[Math.floor(prngno * colors.length)];
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }
-}
-
-function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
-  for (let i = 0; i < ProportionChance.length; i++) {
-    const angle = (ProportionChance[i] / prngno) * 360;
-    ctx.rotate(angle);
-    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-      return sum + parseInt(percentage);
-    }, 0);
-    const segmentHeight = canvas.width / totalPercentage;
-    for (let i = 0; i < Pallettes.length; i++) {
-      const colors = Pallettes[i];
-      const angle = (ProportionChance[i] / totalPercentage) * 360;
-      ctx.globalCompositeOperation = blendMode;
-      for (let y = 0; y < canvas.width; y++) {
-        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
-          ctx.rotate(angle);
-          const color = colors[Math.floor(prngno * colors.length)];
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, 1, 1);
-        }
-      }
-      ctx.rotate(-angle);
-    }
-  }
-}
 */
