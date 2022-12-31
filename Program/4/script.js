@@ -163,7 +163,6 @@ console.log(colors);
   console.log(pickedColors);
   return pickedColors;
 }
-
 async function triggerReload(text) {
   try {
     var textarea = document.createElement('textarea');
@@ -176,7 +175,6 @@ async function triggerReload(text) {
     console.error(error);
   }
 }
-
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
   let metadata = `fxhash:${prngno}\nPhrases:\n`;
 
@@ -301,7 +299,6 @@ function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
   document.body.removeChild(imageLink);
 }
 //There's a bunch of really wacky redundency in the above code, might be interesting to actually use it properly (but it does what I want)
-
 function colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode){
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
@@ -374,7 +371,6 @@ imageLink.click();
 document.body.removeChild(imageLink);
 }
 //Will need to test what is actually drawing what - Might be an idea to slow it down or save an animation
-
 function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
@@ -503,10 +499,12 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
     //colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
 
         for (let i = 0; i < 5; i++) {
+          console.log("Angled Pass Start - ", [i]);
             colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
             let fileName = `${fxhash} - Angled1 Iteration${[i]}`;
             downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode)
             ctx.scale(4, 4);
+            console.log("Angled Pass Fin. - ", [i]);
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     //downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
