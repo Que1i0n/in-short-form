@@ -1,4 +1,6 @@
-  // Derive in Genesis
+
+// Derive in Genesis
+
 function noZero(prngno) {
     // Shift the decimal place one digit to the right and convert to an integer
     const digit1 = parseInt(prngno * 10);
@@ -109,15 +111,25 @@ function nozero(prngno) {
   console.error('No non-zero digits found');
   return 1;
 }
-function triggerReload(){
-      // Create a new element
-      var element = document.createElement("p");
-      // Set the element's content
-      element.innerHTML = "This is a new element created using JavaScript";
-        // Append the element to the container element
-      document.getElementById("container").appendChild(element);
-}
-
+function triggerReload(text) {
+    // Create a textarea element
+    var textarea = document.createElement('textarea');
+  
+    // Set the value of the textarea to the text you want to copy
+    textarea.value = text;
+  
+    // Add the textarea to the document so it can be selected
+    document.body.appendChild(textarea);
+  
+    // Select the text in the textarea
+    textarea.select();
+  
+    // Copy the selected text to the clipboard
+    document.execCommand('copy');
+  
+    // Remove the textarea from the document
+    document.body.removeChild(textarea);
+  }  
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
       ProportionChance = [ProportionChance];
@@ -138,7 +150,6 @@ function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
       }
   }
 }
-
 function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
@@ -161,7 +172,6 @@ function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
-
 function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
@@ -186,9 +196,6 @@ function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
-
-
-
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
@@ -281,6 +288,8 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   document.body.appendChild(metadataLink);
   metadataLink.click();
   document.body.removeChild(metadataLink);
+
+  copyToClipboard("Done!");
 }
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
@@ -296,14 +305,12 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
     triggerReload();
 }
 
-
 const canvas = document.getElementById("canvas");
 canvas.width = 3840;  // 4K resolution
 canvas.height = 2160;
 const ctx = canvas.getContext("2d");
 
 const pixelBatch = 100;
-
 
 let prngno = fxrand();
 //let diceMultiple = 4;
@@ -332,13 +339,9 @@ Phrases.forEach(phrase => {
     //Pallettes.push(shortenedColors);
 });
 
-
 console.log(diceQuant);  
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
 console.log("diceQuant:", diceQuant);
 
 //---//
-
-/*
-*/
