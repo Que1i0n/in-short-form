@@ -113,38 +113,12 @@ function nozero(prngno) {
 }
 async function triggerReload(text) {
   try {
-    console.log("Before textarea element is created: ", document.body.innerHTML);
-
-    // Create a textarea element
     var textarea = document.createElement('textarea');
-    
-    console.log("After textarea element is created: ", document.body.innerHTML);
-    
-    // Set the value of the textarea to the text you want to copy
     textarea.value = text;
-    
-    console.log("Textarea value: ", textarea.value);
-    
-    // Add the textarea to the document so it can be selected
     document.body.appendChild(textarea);
-    
-    console.log("After textarea element is appended to the document: ", document.body.innerHTML);
-    
-    // Select the text in the textarea
     textarea.select();
-    
-    console.log("After text is selected in the textarea: ", document.getSelection().toString());
-    
-    // Copy the selected text to the clipboard using navigator.clipboard.writeText()
     await navigator.clipboard.writeText(textarea.value);
-    
-    console.log("After text is written to the clipboard: ", navigator.clipboard.readText().then(console.log));
-    
-    // Remove the textarea from the document
     document.body.removeChild(textarea);
-    
-    console.log("After textarea element is removed from the document: ", document.body.innerHTML);
-    
   } catch (error) {
     console.error(error);
   }
@@ -311,10 +285,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   metadataLink.click();
   document.body.removeChild(metadataLink);
 
-<<<<<<< HEAD
   triggerReload("Done!");
-=======
->>>>>>> c396b51a300fc19b27d000d7544a75c9842b44a2
 }
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
   triggerReload("Started");
@@ -349,7 +320,6 @@ const blendModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 const cleanedPhrases = cleanPhrases(Phrases);
-
 // Generate the hexadecimal color codes for each cleaned phrase
 cleanedPhrases.forEach(phrase => {
     const hexColors = sentenceToHexColors(phrase);
@@ -357,7 +327,6 @@ cleanedPhrases.forEach(phrase => {
     const shortenedColors = getRandomColors(hexColors, palletteDepth);
     //Pallettes.push(shortenedColors);
 });
-
 Phrases.forEach(phrase => {
     const hexColors = sentenceToHexColors(phrase);
     const shortenedColors = getRandomColors(hexColors, palletteDepth, prngno);  // <--- colour pallette depth
@@ -366,7 +335,6 @@ Phrases.forEach(phrase => {
 
 console.log(diceQuant);  
 triggerReload("Start");
-console.log(navigator.clipboard);
 
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
