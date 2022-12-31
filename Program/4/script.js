@@ -134,6 +134,13 @@ async function triggerReload(text) {
     console.error(error);
   }
 }
+async function writeToClipboard() {
+  try {
+    await navigator.clipboard.writeText('Start');
+  } catch (err) {
+    console.error('Failed to write to clipboard: ', err);
+  }
+}
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
       ProportionChance = [ProportionChance];
@@ -296,6 +303,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   copyToClipboard("Done!");
 }
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
+    writeToClipboard();
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
