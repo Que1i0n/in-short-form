@@ -111,25 +111,29 @@ function nozero(prngno) {
   console.error('No non-zero digits found');
   return 1;
 }
-function triggerReload(text) {
+async function triggerReload(text) {
+  try {
     // Create a textarea element
     var textarea = document.createElement('textarea');
-  
+
     // Set the value of the textarea to the text you want to copy
     textarea.value = text;
-  
+
     // Add the textarea to the document so it can be selected
     document.body.appendChild(textarea);
-  
+
     // Select the text in the textarea
     textarea.select();
-  
-    // Copy the selected text to the clipboard
-    document.execCommand('copy');
-  
+
+    // Copy the selected text to the clipboard using navigator.clipboard.writeText()
+    await navigator.clipboard.writeText(textarea.value);
+
     // Remove the textarea from the document
     document.body.removeChild(textarea);
-  }  
+  } catch (error) {
+    console.error(error);
+  }
+}
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
       ProportionChance = [ProportionChance];
