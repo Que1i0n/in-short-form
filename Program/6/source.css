@@ -12,3 +12,8 @@
 body{
     overflow: hidden;
 }
+
+#textarea {
+    z-index: 1000;
+  }
+  
