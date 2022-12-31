@@ -247,7 +247,7 @@ function colorCanvasVertical1Oldforesvgrenderingtest(ctx, Pallettes, ProportionC
     }
   }
 }
-//svg rendering test
+//svg rendering test + horizontal version below (change x's to y's kinda thing)
 function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
@@ -292,6 +292,52 @@ function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
   imageLink.click();
   document.body.removeChild(imageLink);
 }
+function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance, blendMode) {
+  if (!Array.isArray(ProportionChance)) {
+    ProportionChance = [ProportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+  const segmentWidth = canvas.height / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    const x = i * segmentWidth;
+    const height = segmentWidth * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    // Parse the SVG path data and draw it on the canvas
+    const path = new Path2D(colors[0]);
+    ctx.fillStyle = colors[1];
+    ctx.fill(path);
+  }
+/// to test ---------------------- the following or below
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    let x = i * segmentWidth;
+    const height = segmentWidth * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    // Parse the SVG path data and draw it on the canvas
+    const path = new Path2D(colors[0]);
+    ctx.fillStyle = colors[1];
+    ctx.fill(path);
+    
+    // Draw the rectangle again along the bottom of the canvas
+    y = (i * segmentWidth) + canvas.width;
+    ctx.fill(path);
+  }
+
+  console.log("Coloring Vertically SVG test Done!");
+  let fileName = `${fxhash} - Horizontal Iteration`;
+  const imageDataURL = canvas.toDataURL();
+  const imageLink = document.createElement("a");
+  imageLink.href = imageDataURL;
+  imageLink.download = `${fileName} - ${blendMode}`;
+  document.body.appendChild(imageLink);
+  imageLink.click();
+  document.body.removeChild(imageLink);
+}
+//There's a bunch of really wacky redundency in the above code, might be interesting to actually use it properly
+
 
 function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
@@ -417,7 +463,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
   console.log(Pallettes);
   triggerReload("Started");
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
-    //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+    colorCanvasHorizontal1(ctx, Pallettes, ProportionChance, blendMode);
     colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
 
         for (let i = 0; i < 5; i++) {
