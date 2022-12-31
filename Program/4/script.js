@@ -301,27 +301,26 @@ function colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode){
   const totalPercentage = ProportionChance.reduce((sum, percentage) => {
     return sum + parseInt(percentage);
   }, 0);
-  const segmentHeight = canvas.width / totalPercentage; 
 
   // Draw the bars along the top of the canvas
 for (let i = 0; i < Pallettes.length; i++) {
+  const segmentWidth = canvas.height / totalPercentage; 
   const colors = Pallettes[i];   
   const x = i * segmentWidth;
   const height = segmentWidth * parseInt(ProportionChance[i]);
   ctx.globalCompositeOperation = blendMode;
 // Generate the SVG data for the rectangle
 const svgData = `<rect x="${x}" y="0" width="${segmentWidth}" height="${height}" fill="${colors[1]}"/>`;
-
 // Parse the SVG data and draw it on the canvas
 const parser = new DOMParser();
 const svg = parser.parseFromString(svgData, "image/svg+xml");
 const path = new Path2D(svg.querySelector("rect"));
 ctx.fill(path);
-
 }
 
 // Draw the bars along the left of the canvas
 for (let i = 0; i < Pallettes.length; i++) {
+  const segmentWidth = canvas.width / totalPercentage; 
   const colors = Pallettes[i];   
   // Adjust the x position to draw the rectangle along the left of the canvas
   const x = (i * segmentWidth) - canvas.width;
@@ -329,7 +328,6 @@ for (let i = 0; i < Pallettes.length; i++) {
   ctx.globalCompositeOperation = blendMode;
 // Generate the SVG data for the rectangle
 const svgData = `<rect x="${x}" y="0" width="${segmentWidth}" height="${height}" fill="${colors[1]}"/>`;
-
 // Parse the SVG data and draw it on the canvas
 const parser = new DOMParser();
 const svg = parser.parseFromString(svgData, "image/svg+xml");
@@ -340,6 +338,8 @@ ctx.fill(path);
 
 // Draw the bars along the right of the canvas
 for (let i = 0; i < Pallettes.length; i++) {
+  const segmentWidth = canvas.width / totalPercentage; 
+
   const colors = Pallettes[i];   
   // Adjust the x position to draw the rectangle along the right of the canvas
   const x = (i * segmentWidth) + canvas.width;
@@ -353,9 +353,19 @@ const parser = new DOMParser();
 const svg = parser.parseFromString(svgData, "image/svg+xml");
 const path = new Path2D(svg.querySelector("rect"));
 ctx.fill(path);
+}
 
+console.log("Coloring ALL SVG test Done!");
+let fileName = `${fxhash} - ALL Iteration`;
+const imageDataURL = canvas.toDataURL();
+const imageLink = document.createElement("a");
+imageLink.href = imageDataURL;
+imageLink.download = `${fileName} - ${blendMode}`;
+document.body.appendChild(imageLink);
+imageLink.click();
+document.body.removeChild(imageLink);
 }
-}
+//Will need to test what is actually drawing what - Might be an idea to slow it down or save an animation
 
 function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
@@ -482,6 +492,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
   triggerReload("Started");
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
+    colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
 
         for (let i = 0; i < 5; i++) {
             colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
