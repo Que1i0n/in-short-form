@@ -113,18 +113,43 @@ function nozero(prngno) {
 }
 async function triggerReload(text) {
   try {
+    // Add the textarea to the "container" div element
+    //document.getElementById("container").appendChild(textarea);
+
+    console.log("Before textarea element is created: ", document.body.innerHTML);
+
+    // Create a textarea element
     var textarea = document.createElement('textarea');
+    
+    console.log("After textarea element is created: ", document.body.innerHTML);
+    
+    // Set the value of the textarea to the text you want to copy
     textarea.value = text;
+    
+    console.log("Textarea value: ", textarea.value);
+    
+    // Add the textarea to the document so it can be selected
     document.body.appendChild(textarea);
+    
+    console.log("After textarea element is appended to the document: ", document.body.innerHTML);
+    
+    // Select the text in the textarea
     textarea.select();
+    
+    console.log("After text is selected in the textarea: ", document.getSelection().toString());
+    
+    // Copy the selected text to the clipboard using navigator.clipboard.writeText()
     await navigator.clipboard.writeText(textarea.value);
+    
+    console.log("After text is written to the clipboard: ", navigator.clipboard.readText().then(console.log));
+    
+    // Remove the textarea from the document
     document.body.removeChild(textarea);
+    
+    console.log("After textarea element is removed from the document: ", document.body.innerHTML);
   } catch (error) {
     console.error(error);
   }
-}
-function writeToClipboard() {
- navigator.clipboard.writeText('Start');
 }
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
@@ -308,15 +333,19 @@ const ctx = canvas.getContext("2d");
 
 const pixelBatch = 100;
 
-let prngno = fxrand();
+let prngno = 0.1060490249656141;
+//let prngno = fxrand();
 //let diceMultiple = 4;
 let diceQuant = nozero(prngno);
 
 const Phrases = getPhrases("Genesis.txt", diceQuant);
-const Pallettes = [['#0F5C46', '#1E6D5F','#1C891D','#A0FD7E','#7FF1F4'],['#5332FE','#9036FF','#FA78E2','#FF5EFF','#F933F7']];
+const Pallettes = [['#000E38','#0E2C58','#0A2518','#9C4A10','#E0A871','#D8863E'], ['#BD2136','#863526','#1F2928','#A4B6D2','#25130C','#5A2011'],['#1A060F',' #061A4B',' #635411',' #C1AA11',' #A20946',' #C5EBAA'],['#0B0805','#352D21','#5F5444','#92836E','#B6C4CC','#196ECF'],['#210803','#511C11','#EC1C09','#951709','#926D72','#C7B9C2'],['#0C61F7','#022CBF','#011581','#01084A','#020420','#010107'],['#798152','#626C4D','#4B5028','#646931','#3B443D','#515644'],['#3A420D','#141A07','#72750A','#B3A822','#5C543A','#DFC76F'],['#B6AFC6','#A099AD','#DCBFC3','#6D7384','#24231E','#61574E']];
+//[['#0F5C46', '#1E6D5F','#1C891D','#A0FD7E','#7FF1F4'],['#5332FE','#9036FF','#FA78E2','#FF5EFF','#F933F7']];
 let palletteDepth = 3;
 const ProportionChance = getStringLengths(Phrases);
-const blendModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light'];
+//  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
+//['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light'];
+const blendModes = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
 const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
 
 const cleanedPhrases = cleanPhrases(Phrases);
@@ -334,7 +363,6 @@ Phrases.forEach(phrase => {
 });
 
 console.log(diceQuant);  
-triggerReload("Start");
 
 draw(ctx, Pallettes, ProportionChance, blendMode);
 

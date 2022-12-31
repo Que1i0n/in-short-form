@@ -1,5 +1,5 @@
 ﻿#Persistent
-SetTimer, CheckConsole, 100000
+SetTimer, CheckConsole, 10000
 
 CheckConsole:
 {
@@ -7,7 +7,7 @@ CheckConsole:
     If (InStr(clipboard, "Done!") > 0)
     {
         ; Refresh the webpage
-        Send, ^R
+        Send, ^+R
 	clipboard:= ""
     }
 }
