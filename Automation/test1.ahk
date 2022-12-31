@@ -1,4 +1,5 @@
 ﻿#Persistent
+<<<<<<< HEAD
 SetTimer, CheckScreen, 100000
 
 CheckScreen:
@@ -9,3 +10,17 @@ CheckScreen:
     SetTimer, CheckScreen, Off
   }
 return
+=======
+SetTimer, CheckConsole, 100000
+
+CheckConsole:
+{
+    ; Check the console for the message "Done!"
+    If (InStr(clipboard, "Done!") > 0)
+    {
+        ; Refresh the webpage
+        Send, ^R
+	clipboard:= ""
+    }
+}
+>>>>>>> c396b51a300fc19b27d000d7544a75c9842b44a2

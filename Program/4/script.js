@@ -149,12 +149,8 @@ async function triggerReload(text) {
     console.error(error);
   }
 }
-async function writeToClipboard() {
-  try {
-    await navigator.clipboard.writeText('Start');
-  } catch (err) {
-    console.error('Failed to write to clipboard: ', err);
-  }
+function writeToClipboard() {
+ navigator.clipboard.writeText('Start');
 }
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
@@ -315,10 +311,13 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   metadataLink.click();
   document.body.removeChild(metadataLink);
 
+<<<<<<< HEAD
   triggerReload("Done!");
+=======
+>>>>>>> c396b51a300fc19b27d000d7544a75c9842b44a2
 }
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
-    writeToClipboard();
+  triggerReload("Started");
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
@@ -372,5 +371,6 @@ console.log(navigator.clipboard);
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
 console.log("diceQuant:", diceQuant);
+triggerReload("Done!");
 
 //---//
