@@ -179,11 +179,19 @@ async function triggerReload(text) {
 
 function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
   let metadata = `fxhash:${prngno}\nPhrases:\n`;
-      for (let i = 0; i < Phrases.length; i++) {
-        metadata += `${i + 1}. ${Phrases[i]}\n`;
-    }
-  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(ProjectColors)}\nblendMode:${blendMode}`;
 
+  // Add each phrase to the metadata string
+  for (let i = 0; i < Phrases.length; i++) {
+    metadata += `${i + 1}. ${Phrases[i]}\n`;
+  }
+  
+  // Add the remaining metadata to the string
+  metadata += `
+  dice:${diceQuant}
+  ProportionChance:${ProportionChance}
+  Pallettes:${JSON.stringify(ProjectColors)}
+  blendMode:${blendMode}
+  `;
   //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
   const imageDataURL = canvas.toDataURL();
@@ -492,11 +500,11 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
   triggerReload("Started");
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
-    colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
+    //colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
 
         for (let i = 0; i < 5; i++) {
             colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
-            let fileName = `${fxhash} - Vertical Iteration${[i]}`;
+            let fileName = `${fxhash} - Angled1 Iteration${[i]}`;
             downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode)
             ctx.scale(4, 4);
         }
