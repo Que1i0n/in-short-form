@@ -266,6 +266,22 @@ function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
     ctx.fillStyle = colors[1];
     ctx.fill(path);
   }
+/// to test ---------------------- the following or below
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    let y = i * segmentHeight;
+    const width = segmentHeight * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    // Parse the SVG path data and draw it on the canvas
+    const path = new Path2D(colors[0]);
+    ctx.fillStyle = colors[1];
+    ctx.fill(path);
+    
+    // Draw the rectangle again along the bottom of the canvas
+    y = (i * segmentHeight) + canvas.height;
+    ctx.fill(path);
+  }
+
   console.log("Coloring Vertically SVG test Done!");
   let fileName = `${fxhash} - Vertical Iteration`;
   const imageDataURL = canvas.toDataURL();
@@ -406,6 +422,8 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
 
         for (let i = 0; i < 5; i++) {
             colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
+            let fileName = `${fxhash} - Vertical Iteration${[i]}`;
+            downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode)
             ctx.scale(4, 4);
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
