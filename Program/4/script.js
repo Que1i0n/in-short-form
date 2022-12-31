@@ -134,12 +134,8 @@ async function triggerReload(text) {
     console.error(error);
   }
 }
-async function writeToClipboard() {
-  try {
-    await navigator.clipboard.writeText('Start');
-  } catch (err) {
-    console.error('Failed to write to clipboard: ', err);
-  }
+function writeToClipboard() {
+ navigator.clipboard.writeText('Start');
 }
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
@@ -300,10 +296,8 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   metadataLink.click();
   document.body.removeChild(metadataLink);
 
-  copyToClipboard("Done!");
 }
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
-    writeToClipboard();
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
@@ -314,7 +308,6 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
-    triggerReload();
 } 
 
 const canvas = document.getElementById("canvas");
@@ -351,9 +344,11 @@ Phrases.forEach(phrase => {
     //Pallettes.push(shortenedColors);
 });
 
+triggerReload("Started");
 console.log(diceQuant);  
 draw(ctx, Pallettes, ProportionChance, blendMode);
 
 console.log("diceQuant:", diceQuant);
+triggerReload("Done!");
 
 //---//
