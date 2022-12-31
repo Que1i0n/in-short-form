@@ -298,6 +298,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
 
 }
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
+  triggerReload("Started");
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
     colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
@@ -344,7 +345,6 @@ Phrases.forEach(phrase => {
     //Pallettes.push(shortenedColors);
 });
 
-triggerReload("Started");
 console.log(diceQuant);  
 draw(ctx, Pallettes, ProportionChance, blendMode);
 

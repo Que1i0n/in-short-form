@@ -8,5 +8,6 @@ CheckConsole:
     {
         ; Refresh the webpage
         Send, ^R
+	clipboard:= ""
     }
 }
