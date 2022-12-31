@@ -111,45 +111,99 @@ function nozero(prngno) {
   console.error('No non-zero digits found');
   return 1;
 }
+function nozeroArray(prngno) {
+  const parts = String(prngno).split('.');
+  const digits = parts[1] ? parts[1].split('') : [];
+  let nonZeroDigits = [];
+  for (let i = 0; i < digits.length; i++) {
+    if (digits[i] !== '0') {
+      nonZeroDigits.push(parseInt(digits[i]));
+    }
+  }
+  if (parts[0]) {
+    const digits = parts[0].split('');
+    for (let i = 0; i < digits.length; i++) {
+      if (digits[i] !== '0') {
+        nonZeroDigits.push(parseInt(digits[i]));
+      }
+    }
+  }
+
+  // If no non-zero digits were found, log an error message to the console and return an array with a single element 1
+  if (nonZeroDigits.length === 0) {
+    console.error('No non-zero digits found');
+    return [1];
+  }
+
+  return nonZeroDigits;
+}
+function TruncateProjectColors(colors) {
+  let ar = nozeroArray(prngno);
+  let a = ar[0]
+  let b = ar[1];
+  let c = ar[2];
+
+console.log(colors);
+
+  console.log("prngno: ", prngno, "a: ", a, "b: ", b, "c: ",c);
+
+
+  // Create a new array to store the picked colors
+  let pickedColors = [];
+
+  // Pick 'numColorsToPick' number of colors from the colors array
+  for (let i = 0; i < a; i++) {
+    // Generate a random index to pick a color from
+    let randomIndex = Math.floor(Math.random() * colors.length);
+    const index = Math.floor(a * Math.min(colors.length, a));
+    // Add the picked color to the pickedColors array and remove it from the colors array
+    pickedColors.push(colors[randomIndex]);
+    colors.splice(randomIndex, 1);
+  }
+  console.log(pickedColors);
+  return pickedColors;
+}
+
 async function triggerReload(text) {
   try {
-    // Add the textarea to the "container" div element
-    //document.getElementById("container").appendChild(textarea);
-
-    console.log("Before textarea element is created: ", document.body.innerHTML);
-
-    // Create a textarea element
     var textarea = document.createElement('textarea');
-    
-    console.log("After textarea element is created: ", document.body.innerHTML);
-    
-    // Set the value of the textarea to the text you want to copy
     textarea.value = text;
-    
-    console.log("Textarea value: ", textarea.value);
-    
-    // Add the textarea to the document so it can be selected
     document.body.appendChild(textarea);
-    
-    console.log("After textarea element is appended to the document: ", document.body.innerHTML);
-    
-    // Select the text in the textarea
-    textarea.select();
-    
-    console.log("After text is selected in the textarea: ", document.getSelection().toString());
-    
-    // Copy the selected text to the clipboard using navigator.clipboard.writeText()
+    textarea.select();    
     await navigator.clipboard.writeText(textarea.value);
-    
-    console.log("After text is written to the clipboard: ", navigator.clipboard.readText().then(console.log));
-    
-    // Remove the textarea from the document
     document.body.removeChild(textarea);
-    
-    console.log("After textarea element is removed from the document: ", document.body.innerHTML);
   } catch (error) {
     console.error(error);
   }
+}
+
+function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
+  let metadata = `fxhash:${prngno}\nPhrases:\n`;
+      for (let i = 0; i < Phrases.length; i++) {
+        metadata += `${i + 1}. ${Phrases[i]}\n`;
+    }
+  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(ProjectColors)}\nblendMode:${blendMode}`;
+
+  //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
+
+  const imageDataURL = canvas.toDataURL();
+  const imageLink = document.createElement("a");
+  imageLink.href = imageDataURL;
+  imageLink.download = `${fileName} - ${blendMode}`;
+  document.body.appendChild(imageLink);
+  imageLink.click();
+  document.body.removeChild(imageLink);
+
+  const metadataBlob = new Blob([metadata], {type: 'text/plain'});
+  const metadataUrl = URL.createObjectURL(metadataBlob);
+  const metadataLink = document.createElement("a");
+  metadataLink.href = metadataUrl;
+  metadataLink.download = `${fileName}.txt`;
+  document.body.appendChild(metadataLink);
+  metadataLink.click();
+  document.body.removeChild(metadataLink);
+
+  triggerReload("Done!");
 }
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
@@ -171,7 +225,7 @@ function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
       }
   }
 }
-function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
+function colorCanvasVertical1Oldforesvgrenderingtest(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
   }
@@ -193,6 +247,36 @@ function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
+//svg rendering test
+function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
+  if (!Array.isArray(ProportionChance)) {
+    ProportionChance = [ProportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+  const segmentHeight = canvas.width / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    const y = i * segmentHeight;
+    const width = segmentHeight * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    // Parse the SVG path data and draw it on the canvas
+    const path = new Path2D(colors[0]);
+    ctx.fillStyle = colors[1];
+    ctx.fill(path);
+  }
+  console.log("Coloring Vertically SVG test Done!");
+  let fileName = `${fxhash} - Vertical Iteration`;
+  const imageDataURL = canvas.toDataURL();
+  const imageLink = document.createElement("a");
+  imageLink.href = imageDataURL;
+  imageLink.download = `${fileName} - ${blendMode}`;
+  document.body.appendChild(imageLink);
+  imageLink.click();
+  document.body.removeChild(imageLink);
+}
+
 function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
@@ -241,7 +325,7 @@ function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
-function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
+function colorCanvasOldforesvgrenderingtest(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
   }
@@ -259,6 +343,33 @@ function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
     ctx.fillStyle = colors[0];
     ctx.fillRect(x, y, width, height);
   }
+}
+//svg rendering test
+function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
+  if (!Array.isArray(ProportionChance)) {
+    ProportionChance = [ProportionChance];
+  }
+  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+    return sum + parseInt(percentage);
+  }, 0);
+  const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
+  for (let i = 0; i < Pallettes.length; i++) {
+    const colors = Pallettes[i];   
+    const x = canvas.width > canvas.height ? i * segmentSize : 0;
+    const y = canvas.width > canvas.height ? 0 : i * segmentSize;
+    const width = canvas.width > canvas.height ? segmentSize * parseInt(ProportionChance[i]) : canvas.width;
+    const height = canvas.width > canvas.height ? canvas.height : segmentSize * parseInt(ProportionChance[i]);
+    ctx.globalCompositeOperation = blendMode;
+    // Create a gradient using the colors in the Pallettes array
+    const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+    gradient.addColorStop(0, colors[0]);
+    gradient.addColorStop(1, colors[1]);
+    // Draw a band around the edges of the canvas with the gradient
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x + width / 2, y, width / 2, height);
+    ctx.fillRect(x, y + height / 2, width, height / 2);
+  }
+  console.log("Colours w/ SVG done!");
 }
 function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
   for (let i = 0; i < ProportionChance.length; i++) {
@@ -284,35 +395,10 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
 }
-function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
-  let metadata = `fxhash:${prngno}\nPhrases:\n`;
-      for (let i = 0; i < Phrases.length; i++) {
-        metadata += `${i + 1}. ${Phrases[i]}\n`;
-    }
-  metadata += `dice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
 
-  //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
-
-  const imageDataURL = canvas.toDataURL();
-  const imageLink = document.createElement("a");
-  imageLink.href = imageDataURL;
-  imageLink.download = `${fileName} - ${blendMode}`;
-  document.body.appendChild(imageLink);
-  imageLink.click();
-  document.body.removeChild(imageLink);
-
-  const metadataBlob = new Blob([metadata], {type: 'text/plain'});
-  const metadataUrl = URL.createObjectURL(metadataBlob);
-  const metadataLink = document.createElement("a");
-  metadataLink.href = metadataUrl;
-  metadataLink.download = `${fileName}.txt`;
-  document.body.appendChild(metadataLink);
-  metadataLink.click();
-  document.body.removeChild(metadataLink);
-
-  triggerReload("Done!");
-}
 function draw(ctx, Pallettes, ProportionChance, blendMode) {
+  //will need to do this properly at some point
+  console.log(Pallettes);
   triggerReload("Started");
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
     //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
@@ -323,7 +409,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
             ctx.scale(4, 4);
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
-    downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+    //downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 } 
 
 const canvas = document.getElementById("canvas");
@@ -333,20 +419,26 @@ const ctx = canvas.getContext("2d");
 
 const pixelBatch = 100;
 
-let prngno = 0.1060490249656141;
-//let prngno = fxrand();
+//let prngno = 0.2060490249656141;
+let prngno = fxrand();
 //let diceMultiple = 4;
 let diceQuant = nozero(prngno);
 
 const Phrases = getPhrases("Genesis.txt", diceQuant);
-const Pallettes = [['#000E38','#0E2C58','#0A2518','#9C4A10','#E0A871','#D8863E'], ['#BD2136','#863526','#1F2928','#A4B6D2','#25130C','#5A2011'],['#1A060F',' #061A4B',' #635411',' #C1AA11',' #A20946',' #C5EBAA'],['#0B0805','#352D21','#5F5444','#92836E','#B6C4CC','#196ECF'],['#210803','#511C11','#EC1C09','#951709','#926D72','#C7B9C2'],['#0C61F7','#022CBF','#011581','#01084A','#020420','#010107'],['#798152','#626C4D','#4B5028','#646931','#3B443D','#515644'],['#3A420D','#141A07','#72750A','#B3A822','#5C543A','#DFC76F'],['#B6AFC6','#A099AD','#DCBFC3','#6D7384','#24231E','#61574E']];
+//will need to do this properly at some point
+const ProjectColors = [['#000E38','#0E2C58','#0A2518','#9C4A10','#E0A871','#D8863E'], ['#BD2136','#863526','#1F2928','#A4B6D2','#25130C','#5A2011'],['#1A060F',' #061A4B',' #635411',' #C1AA11',' #A20946',' #C5EBAA'],['#0B0805','#352D21','#5F5444','#92836E','#B6C4CC','#196ECF'],['#210803','#511C11','#EC1C09','#951709','#926D72','#C7B9C2'],['#0C61F7','#022CBF','#011581','#01084A','#020420','#010107'],['#798152','#626C4D','#4B5028','#646931','#3B443D','#515644'],['#3A420D','#141A07','#72750A','#B3A822','#5C543A','#DFC76F'],['#B6AFC6','#A099AD','#DCBFC3','#6D7384','#24231E','#61574E']];
+let Pallettes = TruncateProjectColors(ProjectColors);
+
 //[['#0F5C46', '#1E6D5F','#1C891D','#A0FD7E','#7FF1F4'],['#5332FE','#9036FF','#FA78E2','#FF5EFF','#F933F7']];
 let palletteDepth = 3;
 const ProportionChance = getStringLengths(Phrases);
 //  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
 //['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light'];
 const blendModes = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
-const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
+const blendModeIndex = Math.floor(prngno * blendModes.length) % blendModes.length;
+const blendMode = blendModes[blendModeIndex];
+console.log("BlendMode: ", blendMode,
+"BlendMdeIndex: ", blendModeIndex, "BlendModesLenght: ", blendModes.length);
 
 const cleanedPhrases = cleanPhrases(Phrases);
 // Generate the hexadecimal color codes for each cleaned phrase
