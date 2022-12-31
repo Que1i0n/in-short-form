@@ -315,7 +315,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
     triggerReload();
-}
+} 
 
 const canvas = document.getElementById("canvas");
 canvas.width = 3840;  // 4K resolution
