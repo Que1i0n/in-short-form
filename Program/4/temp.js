@@ -408,3 +408,27 @@ for (let step4 = 0; step4 < 2; step4++) {
   ctx.scale(4, 4);
 }
 
+
+
+// Trying to make Vertical1 go faster by drawing segments at a time rather than blocks
+
+//Produced this 
+
+function colorCanvasVertical1N(ctx, Pallettes, ProportionChance, blendMode) {
+  ctx.globalCompositeOperation = blendMode;
+  for (let i = 0; i < Pallettes.length; i++) {
+    let n = nozeroArray(prngno);
+    const segmentWidth = canvas.width / parseInt(ProportionChance[i]);
+    const segmentHeight = segmentWidth / n[i];
+    const colors = Pallettes[i];   
+    console.log("blendMode: ", blendMode, "\n Colors", colors, "\n Width: ", segmentWidth ,"Height: ", segmentHeight, "\n n", n);
+    let x = Math.floor(prngno * (canvas.width - segmentWidth));
+    let y = Math.floor(prngno * (canvas.height - segmentHeight));
+    ctx.fillStyle = colors[Math.floor(prngno * colors.length)];
+    ctx.fillRect(x, y, segmentWidth, segmentHeight);
+  }
+  let fileName = `${startTime} - ${fxhash} - 4.0 Vertical4 - ${blendMode}`;
+  downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+}
+
+// Which is pretty interesting
