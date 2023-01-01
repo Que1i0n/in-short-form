@@ -199,17 +199,33 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   document.body.appendChild(imageLink);
   imageLink.click();
   document.body.removeChild(imageLink);
+}
+function downloadMetadata(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
+let metadata = `fxhash:${prngno}\nPhrases:\n`;
 
-  const metadataBlob = new Blob([metadata], {type: 'text/plain'});
-  const metadataUrl = URL.createObjectURL(metadataBlob);
-  const metadataLink = document.createElement("a");
-  metadataLink.href = metadataUrl;
-  metadataLink.download = `${fileName}.txt`;
-  document.body.appendChild(metadataLink);
-  metadataLink.click();
-  document.body.removeChild(metadataLink);
+// Add each phrase to the metadata string
+for (let i = 0; i < Phrases.length; i++) {
+  metadata += `${i + 1}. ${Phrases[i]}\n`;
+}
 
-  triggerReload("Done!");
+// Add the remaining metadata to the string
+metadata += `
+dice:${diceQuant}
+ProportionChance:${ProportionChance}
+Pallettes:${JSON.stringify(ProjectColors)}
+blendMode:${blendMode}
+`;
+
+const metadataBlob = new Blob([metadata], {type: 'text/plain'});
+const metadataUrl = URL.createObjectURL(metadataBlob);
+const metadataLink = document.createElement("a");
+metadataLink.href = metadataUrl;
+metadataLink.download = `${fileName}.txt`;
+document.body.appendChild(metadataLink);
+metadataLink.click();
+document.body.removeChild(metadataLink);
+
+triggerReload("Done!");
 }
 function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
   if (!Array.isArray(ProportionChance)) {
@@ -371,11 +387,12 @@ imageLink.click();
 document.body.removeChild(imageLink);
 }
 //Will need to test what is actually drawing what - Might be an idea to slow it down or save an animation
-function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
+function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   for (let i = 0; i < ProportionChance.length; i++) {
     const angle = (ProportionChance[i] / prngno) * 360;
     ctx.rotate(angle);
     const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      console.log("Angled1 percentage - ", percentage);
       return sum + parseInt(percentage);
     }, 0);
     const segmentHeight = canvas.width / totalPercentage;
@@ -387,8 +404,8 @@ function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode) {
         for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
           ctx.rotate(angle);
           const color = colors[Math.floor(prngno * colors.length)];
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, 1, 1);
+          ctx.strokeStyle = color;
+          ctx.strokeRect(x, y, 2, 2);
         }
       }
       ctx.rotate(-angle);
@@ -490,7 +507,7 @@ function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
   }
 }
 
-function draw(ctx, Pallettes, ProportionChance, blendMode) {
+function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   //will need to do this properly at some point
   console.log(Pallettes);
   triggerReload("Started");
@@ -500,14 +517,14 @@ function draw(ctx, Pallettes, ProportionChance, blendMode) {
 
         for (let i = 0; i < 5; i++) {
           console.log("Angled Pass Start - ", [i]);
-            colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, pixelBatch);
+            colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, blendModes);
             let fileName = `${fxhash} - Angled1 Iteration${[i]}`;
             downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode)
             ctx.scale(4, 4);
             console.log("Angled Pass Fin. - ", [i]);
         }
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
-    //downloadCanvas(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+    downloadMetadata(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 } 
 
 const canvas = document.getElementById("canvas");
@@ -554,7 +571,7 @@ Phrases.forEach(phrase => {
 
 console.log(diceQuant);  
 
-draw(ctx, Pallettes, ProportionChance, blendMode);
+draw(ctx, Pallettes, ProportionChance, blendMode, blendModes);
 
 console.log("diceQuant:", diceQuant);
 triggerReload("Done!");
