@@ -256,7 +256,6 @@ function colorCanvasVertical1N(ctx, Pallettes, ProportionChance, blendMode) {
     const segmentWidth = canvas.width / parseInt(ProportionChance[i+1]);
     const segmentHeight = segmentWidth / n[i];
     const colors = Pallettes[i];   
-    console.log("blendMode: ", blendMode, "\n Colors", colors, "\n Width: ", segmentWidth ,"Height: ", segmentHeight, "\n n", n);
     let x = Math.floor(Math.random() * (canvas.width - segmentWidth));
     let y = Math.floor(Math.random() * (canvas.height - segmentHeight));
     ctx.fillStyle = colors[Math.floor(prngno * colors.length)];
