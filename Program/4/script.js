@@ -509,7 +509,10 @@ function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendModes) {
                 ctx.fillRect(x, y, 1, 1);
               }
             }
+            let q = Ary[i+1];
+            console.log(q);
             ctx.rotate(-angle);
+            ctx.scale(q,q)
           }
         }
         let fileName = `${startTime} - ${fxhash} - Angled1 Pass1 - (step1) step ${[counter]} - ${BlendingMode}`;
