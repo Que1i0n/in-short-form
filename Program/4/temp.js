@@ -46,3 +46,57 @@ if (ProportionChance == 1) {
         Pass3()
     }
     }
+
+
+// from gpt
+    function Pass1() {
+      const colors = Pallettes[0]; // use the first element of the Pallettes array
+      const angle = (ProportionChance[0] / prngno) * 360;
+      ctx.rotate(angle);
+      ctx.globalCompositeOperation = blendMode;
+      const n = ProportionChance.length;
+      for (let y = 0; y < canvas.width; y++) {
+        if (y % n === 0) {
+          continue;
+        }
+        for (let x = 0; x < canvas.width; x++) {
+          ctx.rotate(angle);
+          ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
+          ctx.strokeRect(x, y, 2, 2);
+        }
+      }
+      ctx.rotate(-angle);
+    }
+
+// being merged with above
+    function Pass1() {
+      for (let i = 0; i < ProportionChance.length; i++) {
+        const angle = (ProportionChance[i] / prngno) * 360;
+        ctx.rotate(angle);
+        const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+        return sum + parseInt(percentage);
+        }, 0);
+        const segmentHeight = canvas.width / totalPercentage;
+        for (let j = 0; j < Pallettes.length; j++) {
+          const colors = Pallettes[i];
+          const angle = (ProportionChance[i] / totalPercentage) * 360;
+          ctx.globalCompositeOperation = blendMode;
+          const n = ProportionChance.length;
+          for (let y = 0; y < canvas.width; y++) {
+       //     console.log("Inside for (let y = loop");
+            if (y % n === 0) {
+              continue;
+            }
+            for (let x = j * canvas.width; x < (j + 1) * canvas.width; x++) {
+              ctx.rotate(angle);
+              const color = colors[Math.floor(prngno * colors.length)];
+              ctx.strokeStyle = color;
+              ctx.strokeRect(x, y, 2, 2);
+              x++;
+            }
+            console.log(j);
+          }
+          ctx.rotate(-angle);
+        }
+      }
+      }
