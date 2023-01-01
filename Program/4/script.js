@@ -1,5 +1,6 @@
 
 // Derive in Genesis
+const startTime = Date.now();
 
 function noZero(prngno) {
     // Shift the decimal place one digit to the right and convert to an integer
@@ -202,7 +203,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   imageLink.click();
   document.body.removeChild(imageLink);
 }
-function downloadMetadata(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
+function downloadMetadata(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode, endTime) {
 let metadata = `fxhash:${prngno}\nPhrases:\n`;
 
 // Add each phrase to the metadata string
@@ -216,6 +217,9 @@ dice:${diceQuant}
 ProportionChance:${ProportionChance}
 Pallettes:${JSON.stringify(ProjectColors)}
 blendMode:${blendMode}
+startTime:${startTime}
+endTime:${endTime}
+Elapsed${(startTime-endTime)/1000}
 `;
 
 const metadataBlob = new Blob([metadata], {type: 'text/plain'});
@@ -406,7 +410,7 @@ function Pass1() {
       ctx.rotate(angle);
       ctx.globalCompositeOperation = blendMode;
       if (blendMode == "luminosity" || blendMode == "exclusion") {
-        ctx.globalAlpha = ProportionChance.length / 10;
+        ctx.globalAlpha = (10 - ProportionChance.length) / 10;
         }
       const n = ProportionChance.length;
       for (let y = 0; y < canvas.height; y++) {
@@ -442,7 +446,7 @@ function Pass3() {
       ctx.rotate(angle);
       ctx.globalCompositeOperation = blendMode;
       if (blendMode == "luminosity", "exlcusion") {
-      ctx.globalAlpha = ProportionChance.length / 10;
+        ctx.globalAlpha = (10 - ProportionChance.length) / 10;
       }
       const n = ProportionChance.length;
       for (let y = 0; y < canvas.height; y++) {
@@ -625,9 +629,9 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   console.log("ColorCanvasAngled1 Fin.");
 
 
-
+  const endTime = Date.now();
   console.log("METADATA DOWNLOAD INCOMING")
-  downloadMetadata(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+  downloadMetadata(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode, endTime);
   console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
 } 
 
