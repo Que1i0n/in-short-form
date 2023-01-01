@@ -226,9 +226,6 @@ document.body.removeChild(metadataLink);
 }
 
 function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
-  }
   const totalPercentage = ProportionChance.reduce((sum, percentage) => {
     return sum + parseInt(percentage);
   }, 0); 
@@ -238,8 +235,9 @@ function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
     const segmentHeight = segmentWidth / n[i];
     const colors = Pallettes[i];   
     ctx.globalCompositeOperation = blendMode;
-    let x = Math.floor(prngno * (canvas.width - segmentWidth));
-    let y = Math.floor(prngno * (canvas.height - segmentHeight));
+    let x = Math.floor(ProportionChance[i] * n[i]);
+    let y = Math.floor(x * n[i]);
+    console.log(" Vertical1N : x: ",x,"y: ",y, "segment height: ", segmentHeight, "segment width: ", segmentWidth)
     for (y = i * segmentHeight; y < canvas.width; y++) {
       for (x = i * segmentWidth; x < (i + 1) * segmentWidth; x++) {
         const color = colors[Math.floor(prngno * colors.length)];
@@ -256,10 +254,18 @@ function colorCanvasVertical1N(ctx, Pallettes, ProportionChance, blendMode) {
     const segmentWidth = canvas.width / parseInt(ProportionChance[i+1]);
     const segmentHeight = segmentWidth / n[i];
     const colors = Pallettes[i];   
-    let x = Math.floor(Math.random() * (canvas.width - segmentWidth));
-    let y = Math.floor(Math.random() * (canvas.height - segmentHeight));
+    let x = Math.floor(prngno * (canvas.width - segmentWidth));
+    let y = Math.floor(prngno* (canvas.height - segmentHeight));
+    console.log(" Vertical1N : x: ",x,"y: ",y, "segment height: ", segmentHeight, "segment width: ", segmentWidth)
     ctx.fillStyle = colors[Math.floor(prngno * colors.length)];
-    ctx.fillRect(x, y, segmentWidth, segmentHeight);
+    if (x < canvas.width && y < canvas.height) {
+      ctx.fillRect(x, y, segmentWidth, segmentHeight);
+    } else {
+      ctx.save();
+      ctx.translate(0, 0);
+      ctx.rotate(Math.PI / 2);
+      ctx.fillRect(0, 0, segmentWidth, segmentHeight);
+    }
   }
  }
 
@@ -462,7 +468,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   }
   console.log("ColorCanvasVertical1 Fin.");
 
-  let fileName = `${startTime} - ${fxhash} - 4.0 Vertical4`;
+  let fileName = `${startTime} - ${fxhash} - 4.0 Vertical4.png`;
   downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 
   console.log("ColorCanvasAngled1 Start!!");
