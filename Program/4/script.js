@@ -309,8 +309,6 @@ function Pass3() {
       const colors = Pallettes[i];
       ctx.rotate(angle);
       ctx.globalCompositeOperation = BlendingMode;
-      ctx.globalAlpha = (10 - ProportionChance.length) / 10;
-      
       const n = ProportionChance.length;
       for (let y = 0; y < canvas.height; y++) {
         for (let x = 0; x < canvas.width; x++) {
@@ -493,6 +491,7 @@ const canvas = document.getElementById("canvas");
 canvas.width = 3840;  // 4K resolution
 canvas.height = 2160;
 const ctx = canvas.getContext("2d");
+ctx.globalAlpha = 1;
 
 const pixelBatch = 100;
 
