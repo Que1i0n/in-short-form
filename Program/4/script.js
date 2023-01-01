@@ -388,14 +388,40 @@ document.body.removeChild(imageLink);
 }
 //Will need to test what is actually drawing what - Might be an idea to slow it down or save an animation
 function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
-  for (let i = 0; i < ProportionChance.length; i++) {
-    const angle = (ProportionChance[i] / prngno) * 360;
+const totalPercentage = ProportionChance.reduce((sum, percentage) => {      return sum + parseInt(percentage);
+  }, 0);
+function Pass1() {
+  let counter = 0;
+  for (let i = 0; i < 2; i++) {
     ctx.rotate(angle);
-    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-      console.log("Angled1 percentage - ", percentage);
-      return sum + parseInt(percentage);
-    }, 0);
+    console.log("Angled1 Total Percentage: ", totalPercentage);
     const segmentHeight = canvas.width / totalPercentage;
+    for (let i = 0; i < Pallettes.length; i++) {
+      const colors = Pallettes[i];
+      const angle = (ProportionChance[i] / totalPercentage) * 360;
+      ctx.globalCompositeOperation = blendMode;
+      for (let y = 0; y < canvas.width; y++) {
+        counter++;
+        if (counter !== ProportionNumber) {
+          continue;
+        }
+        counter = 0;
+        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+          ctx.rotate(angle);
+          const color = colors[Math.floor(prngno * colors.length)];
+          ctx.strokeStyle = color;
+          ctx.strokeRect(x, y, 2, 2);
+        }
+      }
+      ctx.rotate(-angle);
+    }
+  }
+}
+function Pass3() {
+  for (let i = 0; i < ProportionChance.length-2; i++) {
+    ctx.rotate(angle);
+    console.log("Angled1 Total Percentage: ", totalPercentage);
+   // Seems unneccessary not sure why here // const segmentHeight = canvas.width / totalPercentage;
     for (let i = 0; i < Pallettes.length; i++) {
       const colors = Pallettes[i];
       const angle = (ProportionChance[i] / totalPercentage) * 360;
@@ -409,6 +435,28 @@ function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, blendMo
         }
       }
       ctx.rotate(-angle);
+    }
+  }
+}
+if (ProportionChance == 1) {
+  for (let i = 0; i < 1; i++) {
+      Pass1()
+  }
+  } else if (ProportionChance == 2) {
+  //first loop runs once and second loop runs once
+  for (let i = 0; i < 1; i++) {
+    Pass3()
+    }
+  for (let i = 0; i < 1; i++) {
+    Pass1()
+    }
+  } else {
+    //first loop runs twice and second loop runs ProportionChance-2 number of times
+    for (let i = 0; i < 2; i++) {
+    Pass1()
+    }
+    for (let i = 0; i < ProportionChance-2; i++) {
+    Pass3()
     }
   }
 }
@@ -512,8 +560,9 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   console.log(Pallettes);
   triggerReload("Started");
     colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
-    colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
     //colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
+    console.log("METADATA DOWNLOAD INCOMING")
+    downloadMetadata(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 
         for (let i = 0; i < 5; i++) {
           console.log("Angled Pass Start - ", [i]);
@@ -523,8 +572,8 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
             ctx.scale(4, 4);
             console.log("Angled Pass Fin. - ", [i]);
         }
+        colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
     console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
-    downloadMetadata(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 } 
 
 const canvas = document.getElementById("canvas");
