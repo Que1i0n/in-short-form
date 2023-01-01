@@ -1,6 +1,14 @@
 
 // Derive in Genesis
-const startTime = Date.now();
+const initTime = Date.now();
+const date = new Date(initTime);
+const year = date.getFullYear();
+const month = `0${date.getMonth() + 1}`.slice(-2);
+const day = `0${date.getDate()}`.slice(-2);
+const hours = `0${date.getHours()}`.slice(-2);
+const minutes = `0${date.getMinutes()}`.slice(-2);
+const formattedDate = `${year}/${month}/${day} | ${hours}:${minutes}`;
+const startTime = formattedDate;
 
 function noZero(prngno) {
     // Shift the decimal place one digit to the right and convert to an integer
@@ -48,7 +56,6 @@ function getPhrases(filePath, number) {
 function cleanPhrases(phrases) {
     const cleanedPhrases = [];
     for (const phrase of phrases) {
-      // Use a regular expression to match and remove the pattern "some characters, a number a : and another number and a space" from the start of the phrase
       const cleanedPhrase = phrase.replace(/^[a-zA-Z]+\d+:\d+\s/, '');
       cleanedPhrases.push(cleanedPhrase);
     }
@@ -178,23 +185,7 @@ async function triggerReload(text) {
     console.error(error);
   }
 }
-function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode) {
-  let metadata = `fxhash:${prngno}\nPhrases:\n`;
-
-  // Add each phrase to the metadata string
-  for (let i = 0; i < Phrases.length; i++) {
-    metadata += `${i + 1}. ${Phrases[i]}\n`;
-  }
-  
-  // Add the remaining metadata to the string
-  metadata += `
-  dice:${diceQuant}
-  ProportionChance:${ProportionChance}
-  Pallettes:${JSON.stringify(ProjectColors)}
-  blendMode:${blendMode}
-  `;
-  //const metadata = `fxhash:${prngno}\nPhrases:${Phrases}\ndice:${diceQuant}\nProportionChance:${ProportionChance}\nPallettes:${JSON.stringify(Pallettes)}\nblendMode:${blendMode}`;
-
+function downloadCanvas(fileName) {
   const imageDataURL = canvas.toDataURL();
   const imageLink = document.createElement("a");
   imageLink.href = imageDataURL;
@@ -202,7 +193,10 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
   document.body.appendChild(imageLink);
   imageLink.click();
   document.body.removeChild(imageLink);
-}
+
+};
+
+
 function downloadMetadata(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode, endTime) {
 let metadata = `fxhash:${prngno}\nPhrases:\n`;
 
@@ -231,439 +225,252 @@ document.body.appendChild(metadataLink);
 metadataLink.click();
 document.body.removeChild(metadataLink);
 
-triggerReload("Done!");
 }
-function colorCanvasHorizontal1(ctx, Pallettes, ProportionChance) {
-  if (!Array.isArray(ProportionChance)) {
-      ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-      return sum + parseInt(percentage);
-  }, 0);
-  const segmentHeight = canvas.height / totalPercentage; 
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];
-    const y = i * segmentHeight;
-    const height = segmentHeight * parseInt(ProportionChance[i]);
-      for (let x = 0; x < canvas.width; x++) {
-          for (let y = i * height; y < (i + 1) * height; y++) {
-              ctx.fillStyle = colors[x % colors.length];
-              ctx.fillRect(x, y, 1, 1);
-          }
-      }
-  }
-}
+
 function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
   }
   const totalPercentage = ProportionChance.reduce((sum, percentage) => {
     return sum + parseInt(percentage);
-  }, 0);
-  const segmentHeight = canvas.width / totalPercentage; 
+  }, 0); 
   for (let i = 0; i < Pallettes.length; i++) {
+    let n = nozeroArray(prngno);
+    const segmentWidth = canvas.width / parseInt(ProportionChance[i]);
+    const segmentHeight = segmentWidth / n[i];
     const colors = Pallettes[i];   
-    const width = segmentHeight * parseInt(ProportionChance[i]);
     ctx.globalCompositeOperation = blendMode;
+    console.log("blendMode: ", blendMode, "\n Colors", colors, "\n Width: ", segmentWidth ,"Height: ", segmentHeight, "\n n", n);
+    let x = n[i] * n[(10-n)/10]
+    let y = n[i+1]
     for (let y = i * segmentHeight; y < canvas.width; y++) {
-      for (let x = i * width; x < (i + 1) * width; x++) {
+      for (let x = i * segmentWidth; x < (i + 1) * segmentWidth; x++) {
         const color = colors[Math.floor(prngno * colors.length)];
         ctx.fillStyle = color;
         ctx.fillRect(x, y, 1, 1);
       }
     }
   }
-  let fileName = `${startTime} - ${fxhash} - Vertical1 - ${blendMode}`;
+  let fileName = `${startTime} - ${fxhash} - 1.0 Vertical1 - ${blendMode}`;
   downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 }
-//svg rendering test + horizontal version below (change x's to y's kinda thing)
-function colorCanvasVertical1brokensvg(ctx, Pallettes, ProportionChance, blendMode) {
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  const segmentHeight = canvas.width / totalPercentage; 
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];   
-    const y = i * segmentHeight;
-    const width = segmentHeight * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    // Parse the SVG path data and draw it on the canvas
-    const path = new Path2D(colors[0]);
-    ctx.fillStyle = colors[1];
-    ctx.fill(path);
-  }
-/// to test ---------------------- the following or below
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];   
-    let y = i * segmentHeight;
-    const width = segmentHeight * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    // Parse the SVG path data and draw it on the canvas
-    const path = new Path2D(colors[0]);
-    ctx.fillStyle = colors[1];
-    ctx.fill(path);
-    
-    // Draw the rectangle again along the bottom of the canvas
-    y = (i * segmentHeight) + canvas.height;
-    ctx.fill(path);
-  }
 
-  console.log("Coloring Vertically SVG test Done!");
-  let fileName = `${fxhash} - Vertical Iteration`;
-  const imageDataURL = canvas.toDataURL();
-  const imageLink = document.createElement("a");
-  imageLink.href = imageDataURL;
-  imageLink.download = `${fileName} - ${blendMode}`;
-  document.body.appendChild(imageLink);
-  imageLink.click();
-  document.body.removeChild(imageLink);
-}
-//There's a bunch of really wacky redundency in the above code, might be interesting to actually use it properly (but it does what I want)
-function colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode){
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-
-  // Draw the bars along the top of the canvas
-for (let i = 0; i < Pallettes.length; i++) {
-  const segmentWidth = canvas.height / totalPercentage; 
-  const colors = Pallettes[i];   
-  const x = i * segmentWidth;
-  const height = segmentWidth * parseInt(ProportionChance[i]);
-  ctx.globalCompositeOperation = blendMode;
-// Generate the SVG data for the rectangle
-const svgData = `<rect x="${x}" y="0" width="${segmentWidth}" height="${height}" fill="${colors[1]}"/>`;
-// Parse the SVG data and draw it on the canvas
-const parser = new DOMParser();
-const svg = parser.parseFromString(svgData, "image/svg+xml");
-const path = new Path2D(svg.querySelector("rect"));
-ctx.fill(path);
-}
-
-// Draw the bars along the left of the canvas
-for (let i = 0; i < Pallettes.length; i++) {
-  const segmentWidth = canvas.width / totalPercentage; 
-  const colors = Pallettes[i];   
-  // Adjust the x position to draw the rectangle along the left of the canvas
-  const x = (i * segmentWidth) - canvas.width;
-  const height = segmentWidth * parseInt(ProportionChance[i]);
-  ctx.globalCompositeOperation = blendMode;
-// Generate the SVG data for the rectangle
-const svgData = `<rect x="${x}" y="0" width="${segmentWidth}" height="${height}" fill="${colors[1]}"/>`;
-// Parse the SVG data and draw it on the canvas
-const parser = new DOMParser();
-const svg = parser.parseFromString(svgData, "image/svg+xml");
-const path = new Path2D(svg.querySelector("rect"));
-ctx.fill(path);
-
-}
-
-// Draw the bars along the right of the canvas
-for (let i = 0; i < Pallettes.length; i++) {
-  const segmentWidth = canvas.width / totalPercentage; 
-
-  const colors = Pallettes[i];   
-  // Adjust the x position to draw the rectangle along the right of the canvas
-  const x = (i * segmentWidth) + canvas.width;
-  const height = segmentWidth * parseInt(ProportionChance[i]);
-  ctx.globalCompositeOperation = blendMode;
-// Generate the SVG data for the rectangle
-const svgData = `<rect x="${x}" y="0" width="${segmentWidth}" height="${height}" fill="${colors[1]}"/>`;
-
-// Parse the SVG data and draw it on the canvas
-const parser = new DOMParser();
-const svg = parser.parseFromString(svgData, "image/svg+xml");
-const path = new Path2D(svg.querySelector("rect"));
-ctx.fill(path);
-}
-
-console.log("Coloring ALL SVG test Done!");
-let fileName = `${fxhash} - ALL Iteration`;
-const imageDataURL = canvas.toDataURL();
-const imageLink = document.createElement("a");
-imageLink.href = imageDataURL;
-imageLink.download = `${fileName} - ${blendMode}`;
-document.body.appendChild(imageLink);
-imageLink.click();
-document.body.removeChild(imageLink);
-}
 //Will need to test what is actually drawing what - Might be an idea to slow it down or save an animation
-function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendModes) {
-  var counter = 0;
-  const BlendingModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'screen', 'overlay', 'darken', 'lighten'];
-  let n = nozeroArray(prngno)[counter % BlendingModes.length];
-  var BlendingMode = BlendingModes[n];
-  ;
-  function Pass1() {
-    console.time("outerPass1");
-    for (let i = 0; i < ProportionChance.length; i++) {
-      console.time("innerPass1", [i]);
-      const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-        return sum + parseInt(percentage);
-        }, 0);
-      const segmentHeight = ProportionChance[i] / totalPercentage;
-      const angle = (ProportionChance[i] / segmentHeight) * 360;
+async function colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendModes) {
+var counter = 0;
+let n = nozeroArray(prngno)[counter % BlendingModes.length];
+var BlendingMode = BlendingModes[n];
+;
+function Pass1() {
+  console.time("outerPass1");
+  for (let i = 0; i < ProportionChance.length; i++) {
+    console.time("innerPass1", [i]);
+    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+      }, 0);
+    const segmentHeight = ProportionChance[i] / totalPercentage;
+    const angle = (ProportionChance[i] / segmentHeight) * 360;
+    ctx.rotate(angle);
+
+      const colors = Pallettes[i];
       ctx.rotate(angle);
-  
-        const colors = Pallettes[i];
-        ctx.rotate(angle);
-        ctx.globalCompositeOperation = BlendingMode;
-        ctx.globalAlpha = (10 - ProportionChance.length) / 10;
-        const n = ProportionChance.length;
-        for (let y = 0; y < canvas.height; y++) {
-          if (y % n === 0) {
-            continue;
-          }
-          for (let x = 0; x < canvas.width; x++) {
-            ctx.rotate(angle);
-            ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
-            ctx.strokeRect(x, y, 2, 2);
-            x++;
-          }
+      ctx.globalCompositeOperation = BlendingMode;
+      ctx.globalAlpha = (10 - ProportionChance.length) / 10;
+      const n = ProportionChance.length;
+      for (let y = 0; y < canvas.height; y++) {
+        if (y % n === 0) {
+          continue;
         }
-        console.log("Pass1: ", i);
-        console.timeEnd("innerPass1");
-        ctx.rotate(-angle);
-      }
-      console.timeEnd("outerPass1");
-    }
-  function Pass3() {
-    console.time("outerPass1");
-    for (let i = 0; i < ProportionChance.length; i++) {
-      console.time("innerPass1");
-      const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-        return sum + parseInt(percentage);
-        }, 0);
-      const segmentHeight = ProportionChance[i] / totalPercentage;
-      const angle = (ProportionChance[i] / segmentHeight) * 360;
-      ctx.rotate(angle);
-  
-        const colors = Pallettes[i-1];
-        ctx.rotate(angle);
-        ctx.globalCompositeOperation = BlendingMode;
-          ctx.globalAlpha = (10 - ProportionChance.length) / 10;
-        
-        const n = ProportionChance.length;
-        for (let y = 0; y < canvas.height; y++) {
-          for (let x = 0; x < canvas.width; x++) {
-            ctx.rotate(angle);
-            ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
-            ctx.strokeRect(x, y, 2, 2);
-            x++;
-          }
-        }
-        console.log("Pass3 :", i);
-        console.timeEnd("innerPass1");
-        ctx.rotate(-angle);
-      }
-      console.timeEnd("outerPass1");
-  }
-  function Pass5() { 
-    for (let step5 = 2; step5 < ProportionChance.length; step5++) {
-      let n = nozeroArray(prngno)[counter % BlendingModes.length];
-      console.log(n);
-      let BlendingMode = BlendingModes[n];
-      console.log(BlendingMode);
-      counter++;
-    console.log("Angled Pass3 Start - (step5)", [counter]);
-    Pass3(BlendingMode)
-    let fileName = `${startTime} - ${fxhash} - Angled1 Pass3 - (step5) step ${[counter]} - ${BlendingMode}`;
-    downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, BlendingMode);
-    ctx.scale(4, 4);
-    }
-  }
-  let Chance = ProportionChance.length;
-  if (Chance == 1) {
-    for (let step1 = 0; step1 < 1; step1++) {
-      let Ary = nozeroArray(prngno);
-      console.log(Ary);
-      let n = Ary[counter % BlendingModes.length];
-      console.log(n);
-      let BlendingMode = BlendingModes[n];    
-      console.log("debug Chance = 1 Pass1: ", BlendingMode)
-      counter++
-        console.log("Angled PassStart - (step1)", [counter]);
-        //Pass1(BlendingMode);
-        for (let i = 0; i < ProportionChance.length; i++) {
-          const angle = (ProportionChance[i] / prngno) * 360;
+        for (let x = 0; x < canvas.width; x++) {
           ctx.rotate(angle);
-          const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-            return sum + parseInt(percentage);
-          }, 0);
-          const segmentHeight = canvas.width / totalPercentage;
-          for (let i = 0; i < Pallettes.length; i++) {
-            const colors = Pallettes[i];
-            const angle = (ProportionChance[i] / totalPercentage) * 360;
-            ctx.globalCompositeOperation = blendMode;
-            for (let y = 0; y < canvas.width; y++) {
-              for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
-                ctx.rotate(angle);
-                const color = colors[Math.floor(prngno * colors.length)];
-                ctx.fillStyle = color;
-                ctx.fillRect(x, y, 1, 1);
-              }
-            }
-            let q = Ary[i+1];
-            console.log(q);
-            ctx.rotate(-angle);
-            ctx.scale(q,q)
-          }
+          ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
+          ctx.strokeRect(x, y, 2, 2);
+          x++;
         }
-        let fileName = `${startTime} - ${fxhash} - Angled1 Pass1 - (step1) step ${[counter]} - ${BlendingMode}`;
-        downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, BlendingMode)
-        ctx.scale(4, 4);
       }
-    } else if (Chance == 2) {
-    //first loop runs once and second loop runs once
-    for (let step2 = 0; step2 < 1; step2++) {
-      let Ary = nozeroArray(prngno);
-      console.log(Ary);
-      let n = Ary[counter % BlendingModes.length];
-      console.log(n);
-      let BlendingMode = BlendingModes[n];    
-      console.log("debug Chance = 2 Pass3: ", BlendingMode)
-      counter++
-      console.log("Angled PassStart - (step2)", [counter]);
-        Pass3(BlendingMode)
-        let fileName = `${startTime} - ${fxhash} - Angled1 Pass3 - (step2) step ${[counter]} - ${BlendingMode}`;
-        downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, BlendingMode)
-        ctx.scale(4, 4);
+      console.log("Pass1: ", i);
+      console.timeEnd("innerPass1");
+      ctx.rotate(-angle);
+    }
+    console.timeEnd("outerPass1");
+  }
+function Pass3() {
+  console.time("outerPass1");
+  for (let i = 0; i < ProportionChance.length; i++) {
+    console.time("innerPass1");
+    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+      }, 0);
+    const segmentHeight = ProportionChance[i] / totalPercentage;
+    const angle = (ProportionChance[i] / segmentHeight) * 360;
+    ctx.rotate(angle);
+    console.log("Debug Pass3!! - - - - " , Pallettes)
+
+      const colors = Pallettes[i];
+      ctx.rotate(angle);
+      ctx.globalCompositeOperation = BlendingMode;
+      ctx.globalAlpha = (10 - ProportionChance.length) / 10;
+      
+      const n = ProportionChance.length;
+      for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+          ctx.rotate(angle);
+          ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
+          ctx.strokeRect(x, y, 2, 2);
+          x++;
+        }
       }
-    for (let step3 = 0; step3 < 1; step3++) {
-      let n = nozeroArray(prngno)[counter % BlendingModes.length];
-      console.log(n);
-      let BlendingMode = BlendingModes[n];    counter++
-      console.log("Angled Pass1 Start (step3) - ", [counter]);
-        Pass1(BlendingMode)
-        let fileName = `${startTime} - ${fxhash} - Angled1 Pass1 - (step3) step ${[counter]} - ${BlendingMode}`;
-        downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, BlendingMode)
-        ctx.scale(4, 4);
+      console.log("Pass3 :", i);
+      console.timeEnd("innerPass1");
+      ctx.rotate(-angle);
+    }
+    console.timeEnd("outerPass1");
+}
+function Pass5() { 
+  for (let step5 = 2; step5 < ProportionChance.length; step5++) {
+    let n = nozeroArray(prngno)[counter % BlendingModes.length];
+    console.log(n);
+    console.log(BlendingModes);
+    let BlendingMode = BlendingModes[n];
+    console.log(BlendingMode);
+    counter++;
+  console.log("Angled Pass3 Start - (step5)", [counter]);
+  Pass3(BlendingMode)
+  let fileName = `${startTime} - ${fxhash} - 1. ${[counter]} Angled1 Pass3 - (step5) step ${[counter]} - ${BlendingMode}`;
+  downloadCanvas(fileName);
+  ctx.scale(4, 4);
+  }
+}
+let Chance = ProportionChance.length;
+if (Chance == 1) {
+  for (let step1 = 0; step1 < 1; step1++) {
+    let Ary = nozeroArray(prngno);
+    console.log(Ary);
+    let n = Ary[counter % BlendingModes.length];
+    console.log(n);
+    let BlendingMode = BlendingModes[n];
+    console.log("debug Chance = 1 Pass1: ", BlendingMode)
+    counter++
+      console.log("Angled PassStart - (step1)", [counter]);
+      //Pass1(BlendingMode);
+      for (let i = 0; i < ProportionChance.length; i++) {
+        const angle = (ProportionChance[i] / prngno) * 360;
+        ctx.rotate(angle);
+        const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+          return sum + parseInt(percentage);
+        }, 0);
+        const segmentHeight = canvas.width / totalPercentage;
+        for (let i = 0; i < Pallettes.length; i++) {
+          const colors = Pallettes[i];
+          const angle = (ProportionChance[i] / totalPercentage) * 360;
+          ctx.globalCompositeOperation = BlendingMode;
+          for (let y = 0; y < canvas.width; y++) {
+            for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+              ctx.rotate(angle);
+              const color = colors[Math.floor(prngno * colors.length)];
+              ctx.fillStyle = color;
+              ctx.fillRect(x, y, 1, 1);
+            }
+          }
+          let q = Ary[i+1];
+          console.log(q);
+          ctx.rotate(-angle);
+          ctx.scale(q,q)
+        }
       }
-    } else {
-      //first loop runs twice and second loop runs ProportionChance-2 number of times
-      for (let step4 = 0; step4 < 2; step4++) {
-        let n = nozeroArray(prngno)[counter % BlendingModes.length];
-        console.log(n);
-        let BlendingMode = BlendingModes[n];
-        counter++
-        console.log("Angled Pass1 Start - (step4)", [counter]);
-        Pass1(BlendingMode);
-        let fileName = `${startTime} - ${fxhash} - Angled1 Pass1 - (step4) step ${[step4]} - ${BlendingMode}`;
-        downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, BlendingMode)
-        ctx.scale(4, 4);
-      }
+      let fileName = `${startTime} - ${fxhash} - 1. ${[counter]} Angled1 Pass1 - (step1) step ${[counter]} - ${BlendingMode}`;
+       downloadCanvas(fileName)
+      };      ctx.scale(4, 4);
+    
+  } else if (Chance == 2) {
+  //first loop runs once and second loop runs once
+  for (let step2 = 0; step2 < 1; step2++) {
+    let Ary = nozeroArray(prngno);
+    console.log(Ary);
+    let n = Ary[counter % BlendingModes.length];
+    console.log(n);
+    let BlendingMode = BlendingModes[n];    
+    console.log("debug Chance = 2 Pass3: ", BlendingMode)
+    counter++
+    console.log("Angled PassStart - (step2)", [counter]);
+      Pass3(BlendingMode)
+      let fileName = `${startTime} - ${fxhash} - 1. ${[counter]} Angled1 Pass3 - (step2) step ${[counter]} - ${BlendingMode}`;
+      downloadCanvas(fileName)
+      ctx.scale(4, 4);
+    }
+  for (let step3 = 0; step3 < 1; step3++) {
+    let n = nozeroArray(prngno)[counter % BlendingModes.length];
+    console.log(n);
+    let BlendingMode = BlendingModes[n];    counter++
+    console.log("Angled Pass1 Start (step3) - ", [counter]);
+      Pass1(BlendingMode)
+      let fileName = `${startTime} - ${fxhash} - 1. ${[counter]} Angled1 Pass1 - (step3) step ${[counter]} - ${BlendingMode}`;
+      downloadCanvas(fileName)
+      ctx.scale(4, 4);
+    }
+  } else {
+    //first loop runs twice and second loop runs ProportionChance-2 number of times
+    for (let step4 = 0; step4 < 2; step4++) {
       let n = nozeroArray(prngno)[counter % BlendingModes.length];
       console.log(n);
       let BlendingMode = BlendingModes[n];
-      Pass5(BlendingMode);
-  
+      counter++
+      console.log("Angled Pass1 Start - (step4)", [counter]);
+      Pass1(BlendingMode);
+      let fileName = `${startTime} - ${fxhash} - 1. ${[counter]} Angled1 Pass1 - (step4) step ${[step4]} - ${BlendingMode}`;
+      downloadCanvas(fileName)
+      ctx.scale(4, 4);
     }
+    let n = nozeroArray(prngno)[counter % BlendingModes.length];
+    console.log(n);
+    let BlendingMode = BlendingModes[n];
+    Pass5(BlendingMode);
+
   }
+}
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   if (!Array.isArray(ProportionChance)) {
     ProportionChance = [ProportionChance];
   }
+  console.time("outerPassVertical");
   const totalPercentage = ProportionChance.reduce((sum, percentage) => {
     return sum + parseInt(percentage);
   }, 0);
   const segmentHeight = canvas.width / totalPercentage; 
+  const imageData = ctx.createImageData(canvas.width, canvas.height); // create a typed array to store pixel data
+  const data = imageData.data; // get a reference to the pixel data array
+  ctx.globalCompositeOperation = blendMode;
+  let MetaBlendingMode = [];
   for (let i = 0; i < Pallettes.length; i++) {
+    let n = nozeroArray(prngno)[BlendingModes.length];
+    console.log(n);
+    let BlendingMode = BlendingModes[n];
+    console.log("Vertical Blend Mode: ", BlendingMode);
     const colors = Pallettes[i];   
-    const y = i * segmentHeight;
     const width = segmentHeight * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
     for (let y = 0; y < canvas.width; y++) {
       for (let x = i * width; x < (i + 1) * width; x++) {
         const color = colors[Math.floor(prngno * colors.length)];
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, 1, 1);
+        const index = (y * canvas.width + x) * 4; // get the index of the pixel in the data array
+        data[index] = color[0]; // set the red component
+        data[index + 1] = color[1]; // set the green component
+        data[index + 2] = color[2]; // set the blue component
+        data[index + 3] = color[3]; // set the alpha component
       }
-      // Draw the current segment to the canvas
-      ctx.drawImage(canvas, 0, 0);
     }
+    ctx.putImageData(imageData, 0, 0); // draw the image data to the canvas
+    MetaBlendingMode.push(BlendingMode);
+    console.log("Vertical: ", i);
   }
+  let fileName = `${startTime} - ${fxhash} - Vertical Pass - ${MetaBlendingMode.join("-")}`;
+  downloadCanvas(fileName);
+  console.timeEnd("outerPassVertical")
 }
-function colorCanvasOldforesvgrenderingtest(ctx, Pallettes, ProportionChance, blendMode) {
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];   
-    const x = canvas.width > canvas.height ? i * segmentSize : 0;
-    const y = canvas.width > canvas.height ? 0 : i * segmentSize;
-    const width = canvas.width > canvas.height ? segmentSize * parseInt(ProportionChance[i]) : canvas.width;
-    const height = canvas.width > canvas.height ? canvas.height : segmentSize * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    ctx.fillStyle = colors[0];
-    ctx.fillRect(x, y, width, height);
-  }
-}
-//svg rendering test
-function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
-  if (!Array.isArray(ProportionChance)) {
-    ProportionChance = [ProportionChance];
-  }
-  const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-    return sum + parseInt(percentage);
-  }, 0);
-  const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
-  for (let i = 0; i < Pallettes.length; i++) {
-    const colors = Pallettes[i];   
-    const x = canvas.width > canvas.height ? i * segmentSize : 0;
-    const y = canvas.width > canvas.height ? 0 : i * segmentSize;
-    const width = canvas.width > canvas.height ? segmentSize * parseInt(ProportionChance[i]) : canvas.width;
-    const height = canvas.width > canvas.height ? canvas.height : segmentSize * parseInt(ProportionChance[i]);
-    ctx.globalCompositeOperation = blendMode;
-    // Create a gradient using the colors in the Pallettes array
-    const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
-    gradient.addColorStop(0, colors[0]);
-    gradient.addColorStop(1, colors[1]);
-    // Draw a band around the edges of the canvas with the gradient
-    ctx.fillStyle = gradient;
-    ctx.fillRect(x + width / 2, y, width / 2, height);
-    ctx.fillRect(x, y + height / 2, width, height / 2);
-  }
-  console.log("Colours w/ SVG done!");
-}
-function colorCanvasAngled(ctx, Pallettes, ProportionChance, blendMode) {
-  for (let i = 0; i < ProportionChance.length; i++) {
-    const angle = (ProportionChance[i] / prngno) * 360;
-    ctx.rotate(angle);
-    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
-      return sum + parseInt(percentage);
-    }, 0);
-    const segmentHeight = canvas.width / totalPercentage;
-    for (let i = 0; i < Pallettes.length; i++) {
-      const colors = Pallettes[i];
-      const angle = (ProportionChance[i] / totalPercentage) * 360;
-      ctx.globalCompositeOperation = blendMode;
-      for (let y = 0; y < canvas.width; y++) {
-        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
-          ctx.rotate(angle);
-          const color = colors[Math.floor(prngno * colors.length)];
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, 1, 1);
-        }
-      }
-      ctx.rotate(-angle);
-    }
-  }
-}
+
 
 function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   //will need to do this properly at some point
-  console.log(Pallettes);
-  triggerReload("Started");
+  console.log("Started Drawing - ", Pallettes);
   //colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
 
   //colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
@@ -678,7 +485,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   const endTime = Date.now();
   console.log("METADATA DOWNLOAD INCOMING")
   downloadMetadata(FileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode, endTime);
-  downloadCanvas(FileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);  
+  downloadCanvas(FileName);  
   console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
 } 
 
@@ -689,8 +496,8 @@ const ctx = canvas.getContext("2d");
 
 const pixelBatch = 100;
 
-let prngno = 0.1060490249656141;
-// let prngno = fxrand();
+//let prngno = 0.3534537891223456;
+let prngno = fxrand();
 //let diceMultiple = 4;
 let diceQuant = nozero(prngno);
 
@@ -704,11 +511,7 @@ let palletteDepth = 3;
 const ProportionChance = getStringLengths(Phrases);
 //  ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
 //['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light'];
-const blendModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'screen', 'overlay', 'darken', 'lighten'];
-const blendModeIndex = Math.floor(prngno * blendModes.length) % blendModes.length;
-var blendMode = blendModes[blendModeIndex];
-console.log("BlendMode: ", blendMode,
-"BlendMdeIndex: ", blendModeIndex, "BlendModesLenght: ", blendModes.length);
+const BlendingModes = ['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'screen', 'overlay', 'darken', 'lighten'];
 
 const cleanedPhrases = cleanPhrases(Phrases);
 // Generate the hexadecimal color codes for each cleaned phrase
@@ -726,9 +529,12 @@ Phrases.forEach(phrase => {
 
 console.log("DiceQuant: ", diceQuant, "\nProportion Chance Array: ", JSON.stringify(ProportionChance), "\nProportionChance Array ", ProportionChance);  
 
-draw(ctx, Pallettes, ProportionChance, blendMode, blendModes);
+draw(ctx, Pallettes, ProportionChance, BlendingModes);
 
-console.log("diceQuant:", diceQuant);
+console.log("Finished!");
+
+console.save('console.txt');
+
 triggerReload("Done!");
 
 //---//
