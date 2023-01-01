@@ -563,7 +563,6 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
     //colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
     console.log("METADATA DOWNLOAD INCOMING")
     downloadMetadata(fxhash, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
-
         for (let i = 0; i < 5; i++) {
           console.log("Angled Pass Start - ", [i]);
             colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, blendModes);
