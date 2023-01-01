@@ -462,7 +462,7 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   }
   console.log("ColorCanvasVertical1 Fin.");
 
-  let fileName = `${startTime} - ${fxhash} - 4.0 Vertical4 - ${blendMode}`;
+  let fileName = `${startTime} - ${fxhash} - 4.0 Vertical4`;
   downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
 
   console.log("ColorCanvasAngled1 Start!!");
