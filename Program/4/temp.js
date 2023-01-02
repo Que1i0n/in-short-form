@@ -485,11 +485,9 @@ function Pass5() {
           }
         }
         console.log("Pass3 :", i);
-        // ctx.rotate(-angle);  // remove this line
       }
       console.timeEnd("outerPass1");
   }
-  // ctx.scale(4, 4);  // remove this line
 
   // apply scaling transform to rectangle
   ctx.save();
@@ -499,6 +497,68 @@ function Pass5() {
   ctx.strokeRect(x, y, 2, 2);
   ctx.restore();
 }
+
+function Pass5() { 
+  for (let step5 = 2; step5 < ProportionChance.length; step5++) {
+    let n = nozeroArray(prngno)[counter % BlendingModes.length];
+    let BlendingMode = BlendingModes[n];
+    ctx.globalAlpha = (10-n)/10;
+    counter++;
+    console.log("Angled Pass3 Start - (step5)", [counter]);
+    console.time("outerPass1");
+    for (let i = 0; i < ProportionChance.length; i++) {
+      const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+        return sum + parseInt(percentage);
+        }, 0);
+      const segmentHeight = ProportionChance[i] / totalPercentage;
+      const angle = (ProportionChance[i] / segmentHeight) * 360;
+      // ctx.rotate(angle);  // remove this line
+        const colors = Pallettes[i];
+        // ctx.rotate(angle);  // remove this line
+        ctx.globalCompositeOperation = BlendingMode;
+        const h = ProportionChance;
+        const v = parseInt(h[i])
+        const rectangles = [];
+
+        for (let y = 0; y < canvas.height; y++) {
+          if (y % v === 0) {
+            continue;
+          }
+          for (let x = 0; x < canvas.width; x++) {
+            if ((x + 1) % v !== 0) {
+              // store position and color data for rectangle in an object
+              rectangles.push({
+                x: x,
+                y: y,
+                color: colors[Math.floor(prngno * colors.length)]
+              });
+            }
+            x++;
+            ctx.save();
+ctx.translate(x + 1, y + 1);
+ctx.scale(4, 4);
+ctx.translate(-x - 1, -y - 1);
+for (let i = 0; i < rectangles.length; i++) {
+  ctx.strokeStyle = rectangles[i].color;
+  ctx.strokeRect(rectangles[i].x, rectangles[i].y, 2, 2);
+}
+ctx.restore();
+          }
+        }
+      }
+    }
+  }
+
+// draw all rectangles in a single call to ctx.strokeRect()
+ctx.save();
+ctx.translate(x + 1, y + 1);
+ctx.scale(4, 4);
+ctx.translate(-x - 1, -y - 1);
+for (let i = 0; i < rectangles.length; i++) {
+  ctx.strokeStyle = rectangles[i].color;
+  ctx.strokeRect(rectangles[i].x, rectangles[i].y, 2, 2);
+}
+ctx.restore();
 
 
 // old version without alterations
