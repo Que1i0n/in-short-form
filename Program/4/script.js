@@ -382,9 +382,15 @@ function Pass5() {
           for (let x = 0; x < canvas.width/2; x++) {
             //if ((x + 1) % v !== 0) {
             ctx.rotate(angle);
+            if (counter % 2 == 0) {
             ctx.fillStyle = colors[Math.floor(prngno * colors.length)];
-            ctx.fillRect(x*2 , y*2 , 1, 1);
+            ctx.fillRect(x , y, 1, 1);
             }
+            else {
+              ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
+              ctx.strokeRect(x,y,1,1);
+            }
+          }
           //}
         }
         console.log("Pass3 :", i);
@@ -419,6 +425,7 @@ if (Chance == 1) {
           const angle = (ProportionChance[i] / totalPercentage) * 360;
           ctx.globalCompositeOperation = BlendingMode;
           for (let y = 0; y < canvas.width; y+=5) {
+            //for (let y = i * canvas.height; y < (i + 1) * canvas.height; y+=5) {
             for (let x = i * canvas.width; x < (i + 1) * canvas.width; x+=5) {
               ctx.rotate(angle);
               const color = colors[Math.floor(prngno * colors.length)];
@@ -462,7 +469,7 @@ if (Chance == 1) {
       console.log("Angled Pass1 Start - (step4)", [counter]);
       ctx.scale(-2*Chance, -2*Chance);
       Pass1(BlendingMode);
-      ctx.scale(4, 4);
+      //ctx.scale(4, 4);
     }
     Pass5();
   }
