@@ -432,3 +432,115 @@ function colorCanvasVertical1N(ctx, Pallettes, ProportionChance, blendMode) {
 }
 
 // Which is pretty interesting
+
+
+
+for (y = i * segmentHeight; y < canvas.width; y++) {
+  for (x = i * segmentWidth; x < (i + 1) * segmentWidth; x++) {
+    const color = colors[Math.floor(prngno * colors.length)];
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, segmentWidth, segmentHeight);
+  }
+}
+
+
+// removing canvas scale + rotate
+
+function Pass5() { 
+  for (let step5 = 2; step5 < ProportionChance.length; step5++) {
+    let n = nozeroArray(prngno)[counter % BlendingModes.length];
+    let BlendingMode = BlendingModes[n];
+    ctx.globalAlpha = (10-n)/10;
+    counter++;
+    console.log("Angled Pass3 Start - (step5)", [counter]);
+    console.time("outerPass1");
+    for (let i = 0; i < ProportionChance.length; i++) {
+      const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+        return sum + parseInt(percentage);
+        }, 0);
+      const segmentHeight = ProportionChance[i] / totalPercentage;
+      const angle = (ProportionChance[i] / segmentHeight) * 360;
+      // ctx.rotate(angle);  // remove this line
+        const colors = Pallettes[i];
+        // ctx.rotate(angle);  // remove this line
+        ctx.globalCompositeOperation = BlendingMode;
+        const h = ProportionChance;
+        const v = parseInt(h[i])
+        for (let y = 0; y < canvas.height; y++) {
+          if (y % v === 0) {
+            continue;
+          }
+          for (let x = 0; x < canvas.width; x++) {
+            if ((x + 1) % v !== 0) {
+            // apply rotation transform to rectangle
+            ctx.save();
+            ctx.translate(x + 1, y + 1);
+            ctx.rotate(angle);
+            ctx.translate(-x - 1, -y - 1);
+            ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
+            ctx.strokeRect(x, y, 2, 2);
+            ctx.restore();
+            }
+            x++;
+          }
+        }
+        console.log("Pass3 :", i);
+        // ctx.rotate(-angle);  // remove this line
+      }
+      console.timeEnd("outerPass1");
+  }
+  // ctx.scale(4, 4);  // remove this line
+
+  // apply scaling transform to rectangle
+  ctx.save();
+  ctx.translate(x + 1, y + 1);
+  ctx.scale(4, 4);
+  ctx.translate(-x - 1, -y - 1);
+  ctx.strokeRect(x, y, 2, 2);
+  ctx.restore();
+}
+
+
+// old version without alterations
+
+function Pass5() { 
+  for (let step5 = 2; step5 < ProportionChance.length; step5++) {
+    let n = nozeroArray(prngno)[counter % BlendingModes.length];
+    let BlendingMode = BlendingModes[n];
+    ctx.globalAlpha = (10-n)/10;
+    counter++;
+    console.log("Angled Pass3 Start - (step5)", [counter]);
+    console.time("outerPass1");
+    for (let i = 0; i < ProportionChance.length; i++) {
+      const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+        return sum + parseInt(percentage);
+        }, 0);
+      const segmentHeight = ProportionChance[i] / totalPercentage;
+      const angle = (ProportionChance[i] / segmentHeight) * 360;
+      ctx.rotate(angle);
+        const colors = Pallettes[i];
+        ctx.rotate(angle);
+        ctx.globalCompositeOperation = BlendingMode;
+        const h = ProportionChance;
+        const v = parseInt(h[i])
+        for (let y = 0; y < canvas.height; y++) {
+          if (y % v === 0) {
+            continue;
+          }
+          for (let x = 0; x < canvas.width; x++) {
+            if ((x + 1) % v !== 0) {
+            ctx.rotate(angle);
+            ctx.fillStyle = colors[Math.floor(prngno * colors.length)];
+            ctx.fillRect(x, y, 2, 2);
+            }
+            x++;
+          }
+        }
+        console.log("Pass3 :", i);
+        ctx.rotate(-angle);
+      }
+      console.timeEnd("outerPass1");
+  } ctx.scale(4, 4);
+  let fileName = `${startTime} - ${fxhash} - ${counter} - Angled1.Pass5.png`;
+  downloadCanvas(fileName);
+  }
