@@ -231,18 +231,18 @@ function colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode) {
   }, 0); 
   for (let i = 0; i < Pallettes.length; i++) {
     let n = nozeroArray(prngno);
-    const segmentWidth = canvas.width / parseInt(ProportionChance[i]);
-    const segmentHeight = segmentWidth / n[i];
+    const segmentWidth = parseInt(canvas.width / ProportionChance[i]);
+    const segmentHeight = parseInt(canvas.height / ProportionChance[i] * n[i]);
     const colors = Pallettes[i];   
     ctx.globalCompositeOperation = blendMode;
     let x = Math.floor(ProportionChance[i] * n[i]);
     let y = Math.floor(x * n[i]);
     console.log(" Vertical1N : x: ",x,"y: ",y, "segment height: ", segmentHeight, "segment width: ", segmentWidth)
-    for (y = i * segmentHeight; y < canvas.width; y++) {
-      for (x = i * segmentWidth; x < (i + 1) * segmentWidth; x++) {
+    for (y = 0 ; y < segmentHeight; y++) {
+      for (x = 0 ;  x < segmentWidth ; x++) {
         const color = colors[Math.floor(prngno * colors.length)];
         ctx.fillStyle = color;
-        ctx.fillRect(x, y, segmentWidth, segmentHeight);
+        ctx.fillRect(segmentWidth, segmentHeight, x, y);
       }
     }
   }
@@ -265,7 +265,9 @@ function colorCanvasVertical1N(ctx, Pallettes, ProportionChance, blendMode) {
       ctx.translate(0, 0);
       ctx.rotate(Math.PI / 2);
       ctx.fillRect(0, 0, segmentWidth, segmentHeight);
+      ctx.restore();
     }
+    ctx.fillRect(x, y, segmentHeight, segmentWidth);
   }
  }
 
@@ -292,14 +294,18 @@ function Pass1() {
       ctx.globalCompositeOperation = BlendingMode;
       ctx.globalAlpha = (10 - ProportionChance.length) / 10;
       const n = ProportionChance.length;
-      for (let y = 0; y < canvas.height; y++) {
+      let xstep = 5;
+      let ystep = 5;
+            for (let y = 0; y < canvas.height; y+=ystep) {
         if (y % n === 0) {
           continue;
         }
-        for (let x = 0; x < canvas.width; x++) {
+        for (let x = 0; x < canvas.width; x+=xstep) {
+          if ((x + 1) % n !== 0) {
           ctx.rotate(angle);
-          ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
-          ctx.strokeRect(x, y, 2, 2);
+          ctx.fillStyle = colors[Math.floor(prngno * colors.length)];
+          ctx.fillRect(x, y, 2, 2);
+          }
           x++;
         }
       }
@@ -307,6 +313,8 @@ function Pass1() {
       console.timeEnd("innerPass1");
       ctx.rotate(-angle);
     }
+    let fileName = `${startTime} - ${fxhash} - ${counter} - Angled1.Pass1.png`;
+    downloadCanvas(fileName);
     console.timeEnd("outerPass1");
   }
 function Pass3() {
@@ -323,28 +331,81 @@ function Pass3() {
       ctx.globalCompositeOperation = BlendingMode;
       const n = ProportionChance.length;
       for (let y = 0; y < canvas.height; y++) {
+        if (y % n === 0) {
+          continue;
+        }
         for (let x = 0; x < canvas.width; x++) {
+          if ((x + 1) % n !== 0) {
           ctx.rotate(angle);
-          ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
-          ctx.strokeRect(x, y, 2, 2);
+          ctx.fillStyle = colors[Math.floor(prngno * colors.length)];
+          ctx.fillRect(x, y, 2, 2);
+          }
           x++;
         }
       }
       console.log("Pass3 :", i);
       ctx.rotate(-angle);
+      let fileName = `${startTime} - ${fxhash} - ${counter} - Angled1.Pass3.png`;
+      downloadCanvas(fileName);
     }
+
     console.timeEnd("outerPass1");
 }
 function Pass5() { 
   for (let step5 = 2; step5 < ProportionChance.length; step5++) {
     let n = nozeroArray(prngno)[counter % BlendingModes.length];
     let BlendingMode = BlendingModes[n];
+    ctx.globalAlpha = (10-n)/10;
     counter++;
     console.log("Angled Pass3 Start - (step5)", [counter]);
-    Pass3(BlendingMode)
-    ctx.scale(4, 4);
+    console.time("outerPass1");
+    for (let i = 0; i < ProportionChance.length; i++) {
+      const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+        return sum + parseInt(percentage);
+        }, 0);
+      const segmentHeight = ProportionChance[i] / totalPercentage;
+      const angle = (ProportionChance[i] / segmentHeight) * 360;
+      // ctx.rotate(angle);  // remove this line
+        const colors = Pallettes[i];
+        // ctx.rotate(angle);  // remove this line
+        ctx.globalCompositeOperation = BlendingMode;
+        const h = ProportionChance;
+        const v = parseInt(h[i])
+        for (let y = 0; y < canvas.height; y++) {
+          if (y % v === 0) {
+            continue;
+          }
+          for (let x = 0; x < canvas.width; x++) {
+            if ((x + 1) % v !== 0) {
+            // apply rotation transform to rectangle
+            ctx.save();
+            ctx.translate(x + 1, y + 1);
+            ctx.rotate(angle);
+            ctx.translate(-x - 1, -y - 1);
+            ctx.strokeStyle = colors[Math.floor(prngno * colors.length)];
+            ctx.strokeRect(x, y, 2, 2);
+            ctx.restore();
+            }
+            x++;
+          }
+        }
+        console.log("Pass3 :", i);
+        // ctx.rotate(-angle);  // remove this line
+      }
+      console.timeEnd("outerPass1");
   }
+  // ctx.scale(4, 4);  // remove this line
+
+  // apply scaling transform to rectangle
+  ctx.save();
+  ctx.translate(x + 1, y + 1);
+  ctx.scale(4, 4);
+  ctx.translate(-x - 1, -y - 1);
+  ctx.strokeRect(x, y, 2, 2);
+  ctx.restore();
 }
+
+
 let Chance = ProportionChance.length;
 if (Chance == 1) {
   for (let step1 = 0; step1 < 1; step1++) {
@@ -377,6 +438,8 @@ if (Chance == 1) {
           console.log(q);
           ctx.rotate(-angle);
           ctx.scale(q,q)
+          let fileName = `${startTime} - ${fxhash} - 4.0 Angled1.${counter}.png`;
+          downloadCanvas(fileName);
         }
       }
       };      
@@ -409,11 +472,7 @@ if (Chance == 1) {
       Pass1(BlendingMode);
       ctx.scale(4, 4);
     }
-    let n = nozeroArray(prngno)[counter % BlendingModes.length];
-    console.log(n);
-    let BlendingMode = BlendingModes[n];
-    Pass5(BlendingMode);
-
+    Pass5();
   }
 }
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
@@ -463,13 +522,14 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
 
   //colorCanvasALL(ctx, Pallettes, ProportionChance, blendMode);
   colorCanvasVertical1(ctx, Pallettes, ProportionChance, blendMode);
-  for (let i = 0; i < ProportionChance.length; i++){
+  let n = nozeroArray()
+  for (let i = 0; i < ProportionChance.length * n[1]; i++){
     colorCanvasVertical1N(ctx, Pallettes, ProportionChance, blendMode)
   }
   console.log("ColorCanvasVertical1 Fin.");
 
-  let fileName = `${startTime} - ${fxhash} - 4.0 Vertical4.png`;
-  downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode);
+  let fileName = `${startTime} - ${fxhash} - 0.png`;
+  downloadCanvas(fileName);
 
   console.log("ColorCanvasAngled1 Start!!");
   colorCanvasAngled1(ctx, Pallettes, ProportionChance, blendMode, blendModes);
@@ -479,7 +539,6 @@ function draw(ctx, Pallettes, ProportionChance, blendMode, blendModes) {
   const endTime = Date.now();
   console.log("METADATA DOWNLOAD INCOMING")
   downloadMetadata(FileName, prngno, Phrases, diceQuant, ProportionChance, Pallettes, blendMode, endTime);
-  downloadCanvas(FileName);  
   console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
 } 
 
@@ -522,12 +581,11 @@ Phrases.forEach(phrase => {
     //Pallettes.push(shortenedColors);
 });
 
+if (nozero(prngno) >= 3) {
 console.log("DiceQuant: ", diceQuant, "\nProportion Chance Array: ", JSON.stringify(ProportionChance), "\nProportionChance Array ", ProportionChance);  
-
 draw(ctx, Pallettes, ProportionChance, BlendingModes);
-
 console.log("Finished!");
-
+};
 triggerReload("Done!");
 
 //---//
