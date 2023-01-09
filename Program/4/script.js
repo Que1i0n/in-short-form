@@ -8,6 +8,39 @@ const hours = `0${date.getHours()}`.slice(-2);
 const minutes = `0${date.getMinutes()}`.slice(-2);
 const formattedDate = `${year}/${month}/${day} | ${hours}:${minutes}`;
 const startTime = formattedDate;
+const canvas = document.getElementById("canvas");
+canvas.width = 3840;  // 4K resolution
+canvas.height = 2160;
+const ctx = canvas.getContext("2d");
+
+let prngno = fxrand();
+let diceArray = nozeroArray(prngno);
+let diceQuant = diceArray[0];
+let diceMultiple = diceArray[0] * diceArray[1];
+
+let AngledData = [];
+let usedColors = [];
+
+const Phrases = getPhrases("Genesis.txt", diceQuant);
+//let Pallettes = [];
+let Pallettes =  [['#000E38',' #0E2C58','#0A2518','#9C4A10','#E0A871','#D8863E'],['#BD2136','#863526','#1F2928','#A4B6D2','#25130C','#5A2011'],['#0B0805','#352D21','#5F5444','#92836E','#B6C4CC','#196ECF'],['#1A060F','#061A4B','#635411','#C1AA11','#A20946','#C5EBAA'],['#210803','#511C11','#EC1C09','#951709','#926D72','#C7B9C2'],['#0C61F7','#022CBF','#011581','#01084A','#020420','#010107'],['#798152','#626C4D','#4B5028','#646931','#3B443D','#515644'],['#3A420D','#141A07','#72750A','#B3A822','#5C543A','#DFC76F']]
+let palletteDepth = 5;
+const ProportionChance = getStringLengths(Phrases);
+const blendModes = ['color-dodge','color-dodge', 'lighten', 'darken', 'color-dodge'];
+//const blendModes = ['overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light']
+//['multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light'];
+const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
+Phrases.forEach(phrase => {
+  const hexColors = sentenceToHexColors(phrase);
+  let shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
+  Pallettes.push(shortenedColors);
+});
+
+let rectangles = [];
+let currentRectangleIndex = 0;
+const pixelBatch = 1;
+let iterations = ((ProportionChance.length - 1) * (4)) / (8) + 2
+
 
 // the program
 function noZero(prngno) {
@@ -90,6 +123,7 @@ function nozeroArray(prngno) {
   return reading;
 }
 function sentenceToHexColors(sentence) {
+  sentence = sentence.replace(/\d+:\d+\s/, '');
   const hexColors = [];
   const chars = sentence.split('');  
   let numDigits = 0;
@@ -108,20 +142,21 @@ function sentenceToHexColors(sentence) {
   return hexColors;
 }
 function getRandomColors(colors, numColors) {
-  const shortenedColors = [];
-
+  const rsColors = [];
   for (let i = 0; i < numColors; i++) {
     let index = Math.floor(prngno * colors.length);
     let counter = 0;
-    while (shortenedColors.includes(colors[index])) {
+    while (rsColors.includes(colors[index])) {
     index = Math.floor(prngno * colors.length);
     counter++;
     if (counter > 3) {
     break;
     }
     }
-    shortenedColors.push(colors[index]);
+    rsColors.push(colors[index]);
+    colors.splice(index, 1); // <--- remove the chosen color from colors
     }
+ return rsColors;
 }
 function getStringLengths(strings) {
   const totalLength = strings.reduce((sum, str) => sum + str.length, 0);
@@ -150,7 +185,6 @@ function optimiseRectangles(rectangles) {
   return rectangles;
 }
 }
-
 function colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode) {
   const totalPercentage = ProportionChance.reduce((sum, percentage) => {
     return sum + parseInt(percentage);
@@ -177,48 +211,73 @@ function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
     return sum + parseInt(percentage);
   }, 0);
   //const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
-  let lastX = 0;
-  for (let i = 0; i < Pallettes.length; i++) {
-    console.log("lastX: ", lastX);
-    let colors = Pallettes[i];   
-    let x = lastX;
-    let y = parseInt(ProportionChance[i]*i);
-    let width = Math.min((canvas.width / totalPercentage) * parseInt(ProportionChance[i])/2, canvas.width/2);
-    let height = Math.min(canvas.height * (1/150-ProportionChance[i]), canvas.height);
-    lastX += width/2;
-    ctx.globalCompositeOperation = blendMode;
-    ctx.fillStyle = colors[0];
-    ctx.fillRect(x, y, width, height);
-    console.log("colorCanvas",[i]);
-    console.log("Rect sizes: ", "x: ",x,"y: ",y,"width: ",width," height: ",height);
+  let lastWidth = Math.min((canvas.width / totalPercentage) * parseInt(ProportionChance[0]), canvas.width);
+  let lastHeight = Math.min((canvas.height / totalPercentage) * parseInt(ProportionChance[0]), canvas.height);
+  let a = nozeroArray(prngno);
+
+    for (let i = 0; i < iterations; i++) {
+      let colors = Pallettes[i];
+      // Generate random width and height for the bar
+      let width = Math.min(lastWidth, canvas.width)/(i+1);
+      let height = Math.min(lastHeight, canvas.height)/(i+1);
+  
+      // Generate random x and y for the bar
+      let x = 1/diceArray[i] * (canvas.width - width);
+      let y = 1/diceArray[i] * (canvas.height - height);
+
+      console.log("lastX: ", lastWidth);
+      console.log("lastY: ", lastHeight);
+  
+      lastHeight += height;
+      lastWidth += width;
+      ctx.globalCompositeOperation = blendModes[Math.floor(prngno)];
+      console.log(colors);   
+      ctx.fillStyle = colors[Math.floor(prngno * 5) + 1];
+      // Check if we should draw a vertical or horizontal bar
+      if (i % 2 == 0) {
+        // Draw a vertical bar
+        ctx.fillRect(x, 0, width, canvas.height);
+      } else {
+        // Draw a horizontal bar
+        ctx.fillRect(0, y, canvas.width, height);
+      }
+    }
   }
-  let filename = `${startTime} - ${fxhash} - ${noZero(prngno)}`
-  downloadCanvas(filename)
-}
+  
+  
 
 function colorCanvasAngled() {
-  for (let i = 0; i < ProportionChance.length; i++) {
-    const angle = (ProportionChance[i] / prngno) * 360;
+  for (let i = 0; i < (iterations/2); i++) {
+    const angle = (ProportionChance[i] / prngno) ;
     ctx.rotate(angle);
     const totalPercentage = ProportionChance.reduce((sum, percentage) => {
       return sum + parseInt(percentage);
     }, 0);
+    AngledData.push(`\nAngled Outer iteration [${[i]}], ProportionChance[i]: ${ProportionChance[i]}, totalPercentage: ${totalPercentage}, angle: ${angle}`);
     const segmentHeight = canvas.width / totalPercentage;
-    for (let i = 0; i < Pallettes.length; i++) {
+    for (let i = 0; i < 3; i++) {
       const colors = Pallettes[i];
       const angle = (ProportionChance[i] / totalPercentage) * 360;
+      AngledData.push(`\nAngled Inner iteration [${[i]}], angle: ${angle} \n colors: ${colors}`)
       ctx.globalCompositeOperation = blendMode;
-      for (let y = 0; y < canvas.width; y++) {
-        for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
+      let usedInnerColors = [];
+      const color = colors[Math.min(Math.floor(noZero(prngno) * colors.length), colors.length - 1)];
+      console.log(color);
+      usedInnerColors.push(color);
+      for (let y = 0; y < canvas.height; y++) {
+        for(let x = 0; x < canvas.width; x++) {
+        //for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
           ctx.rotate(angle);
-          const color = colors[Math.floor(prngno * colors.length)];
           ctx.fillStyle = color;
-          ctx.fillRect(x, y, 1, 1);
+          ctx.fillRect(x, y, 3, 3);
         }
       }
       ctx.rotate(-angle);
+    usedColors.push(`\n Inner iterations usedInnerColors: ${usedInnerColors}`);
     }
+    //ctx.scale(4,4);
   }
+  ctx.scale(4,4);
 }
 /* Something's up with the drawing off screen and rectanlges bit, goingto run the script for a bit to try and fix
 function colorCanvasAngled() {
@@ -295,10 +354,10 @@ function downloadCanvas(fileName) {
 
 };
 function downloadMetadata(fileName) {
-const start = new Date(startTime);
-const end = new Date(getEndTime());
+const start = initTime;
+const end = Date.now();
 const elapsedTime = end - start;
-let metadata = `fxhash:${prngno}\nPhrases:\n`;
+let metadata = `\n fxhash:${fxhash} \n ${prngno} \n\nPhrases:\n`;
 
 // Add each phrase to the metadata string
 for (let i = 0; i < Phrases.length; i++) {
@@ -307,16 +366,20 @@ for (let i = 0; i < Phrases.length; i++) {
 
 // Add the remaining metadata to the string
 metadata += `
-dice:${diceQuant}
-ProportionChance:${ProportionChance}
-Pallettes:${JSON.stringify(Pallettes)}
-blendMode:${blendMode}
+dice: ${diceQuant}
+ProportionChance: ${ProportionChance}
+iterations: ${iterations}
+
+Pallettes: ${JSON.stringify(Pallettes)}
+blendMode :${blendMode}
 
 startTime:${startTime}
 endTime:${getEndTime()}
-
-Elapsed${elapsedTime/1000}'s
+elapsedTime ${elapsedTime}
 `;
+
+metadata += `\n Used Colours \n ${usedColors}`;
+metadata += `\n Angled Data \n \n ${AngledData}`;
 
 const metadataBlob = new Blob([metadata], {type: 'text/plain'});
 const metadataUrl = URL.createObjectURL(metadataBlob);
@@ -327,7 +390,8 @@ document.body.appendChild(metadataLink);
 metadataLink.click();
 document.body.removeChild(metadataLink);
 
-}
+}   
+
 function getEndTime() {
 let finTime = Date.now();
 let findate = new Date(finTime);
@@ -342,56 +406,35 @@ let ENDTime = finformattedDate;
   return ENDTime;
 }
   
-  function draw(  ) {
-    console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
 
-    console.time("drawing");
-    colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
 
-    //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
-    colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
-    
-    for (let i = 0; i < 5; i++) {
-      console.log("colorCanvasAngled start: ", i)
-      colorCanvasAngled();
 
-      console.log("fin.")    
-      let filename = `${startTime} - ${fxhash} - Angled - ${[i]}`;
-      downloadCanvas(filename);
-      ctx.scale(4, 4);
-    }
-    let FinTiem = getEndTime();
-    console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
-    let filename = `${startTime} - ${FinTiem} - ${fxhash}`;
-    downloadCanvas(filename);
-    downloadMetadata(filename);
-    console.log("drawing took: ", FinTiem);
-    triggerReload("Done!");
-  }
+function draw(  ) {
+  console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance,"iterations: ", iterations, "Pallettes:", Pallettes, "blendMode:", blendMode);
+
+  console.time("drawing");
+  colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
+
+  let filename1 = `${startTime} - ${fxhash} - ${noZero(prngno)}`
+  downloadCanvas(filename1)
+  //colorCanvasHorizontal(ctx, Pallettes, ProportionChance);
+  //colorCanvasVertical(ctx, Pallettes, ProportionChance, blendMode);
   
-  const canvas = document.getElementById("canvas");
-  canvas.width = 3840;  // 4K resolution
-  canvas.height = 2160;
-  const ctx = canvas.getContext("2d");
+  for (let i = 0; i < 5; i++) {
+    console.log("colorCanvasAngled start: ", i)
+    colorCanvasAngled();
+    console.log("fin.")    
+    //let filename = `${startTime} - ${fxhash} - Angled - ${[i]}`;
+    //downloadCanvas(filename);
+  }
+  console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
+  let filename = `${startTime} - ${fxhash}`
+  downloadCanvas(filename);
+  downloadMetadata(filename);
+  triggerReload("Done!");
+}
+  
 
-  const pixelBatch = 100;
-
-  let prngno = fxrand();
-  let diceArray = nozeroArray(prngno);
-  let diceQuant = diceArray[0];
-  let diceMultiple = diceArray[0] * diceArray[1];
- 
-  const Phrases = getPhrases("Genesis.txt", diceQuant);
-  const Pallettes = [];
-  let palletteDepth = 3;
-  const ProportionChance = getStringLengths(Phrases);
-  const blendModes = ['normal', 'multiply', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'saturation'];
-  const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
-  Phrases.forEach(phrase => {
-    const hexColors = sentenceToHexColors(phrase);
-    const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
-    Pallettes.push(shortenedColors);
-  });
 
 
   draw();

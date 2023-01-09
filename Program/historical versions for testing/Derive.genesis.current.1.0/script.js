@@ -79,6 +79,7 @@ function sentenceToHexColors(sentence) {
   });
   return hexColors;
 }
+/*
 function getRandomColors(colors, numColors, prngno) {
     const shortenedColors = [];  
     let seed = prngno;
@@ -92,7 +93,26 @@ function getRandomColors(colors, numColors, prngno) {
       shortenedColors.push(colors[index]);
     }  
         return shortenedColors;
+}*/
+
+
+function getRandomColors(colors, numColors) {
+  isCalculating = true;
+  statusMessage = 'Selecting random colors';
+  
+  const shortenedColors = [];
+
+  for (let i = 0; i < numColors; i++) {
+    const index = Math.floor(prngno * colors.length);
+    shortenedColors.push(colors[index]);
+  }
+
+  isCalculating = false;
+  statusMessage = 'Selection complete';
+  return shortenedColors;
 }
+
+
 function getStringLengths(strings) {
   const totalLength = strings.reduce((sum, str) => sum + str.length, 0);
   const proportionSum = strings.reduce((sum, str) => sum + (str.length / totalLength), 0);
