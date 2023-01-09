@@ -22,8 +22,8 @@ let AngledData = [];
 let usedColors = [];
 
 const Phrases = getPhrases("Genesis.txt", diceQuant);
-//let Pallettes = [];
-let Pallettes =  [['#000E38',' #0E2C58','#0A2518','#9C4A10','#E0A871','#D8863E'],['#BD2136','#863526','#1F2928','#A4B6D2','#25130C','#5A2011'],['#0B0805','#352D21','#5F5444','#92836E','#B6C4CC','#196ECF'],['#1A060F','#061A4B','#635411','#C1AA11','#A20946','#C5EBAA'],['#210803','#511C11','#EC1C09','#951709','#926D72','#C7B9C2'],['#0C61F7','#022CBF','#011581','#01084A','#020420','#010107'],['#798152','#626C4D','#4B5028','#646931','#3B443D','#515644'],['#3A420D','#141A07','#72750A','#B3A822','#5C543A','#DFC76F']]
+let Pallettes = [];
+//let Pallettes =  [['#000E38',' #0E2C58','#0A2518','#9C4A10','#E0A871','#D8863E'],['#BD2136','#863526','#1F2928','#A4B6D2','#25130C','#5A2011'],['#0B0805','#352D21','#5F5444','#92836E','#B6C4CC','#196ECF'],['#1A060F','#061A4B','#635411','#C1AA11','#A20946','#C5EBAA'],['#210803','#511C11','#EC1C09','#951709','#926D72','#C7B9C2'],['#0C61F7','#022CBF','#011581','#01084A','#020420','#010107'],['#798152','#626C4D','#4B5028','#646931','#3B443D','#515644'],['#3A420D','#141A07','#72750A','#B3A822','#5C543A','#DFC76F']]
 let palletteDepth = 5;
 const ProportionChance = getStringLengths(Phrases);
 const blendModes = ['color-dodge','color-dodge', 'lighten', 'darken', 'color-dodge'];
@@ -244,7 +244,40 @@ function colorCanvas(ctx, Pallettes, ProportionChance, blendMode) {
     }
   }
   
+  function colorCanvasNew(ctx, Pallettes, ProportionChance, blendMode) {
+    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+    }, 0);
+    //const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
+    let lastWidth = Math.min((canvas.width / totalPercentage) * parseInt(ProportionChance[0]), canvas.width);
+    let lastHeight = Math.min((canvas.height / totalPercentage) * parseInt(ProportionChance[0]), canvas.height);
+    let a = nozeroArray(prngno);
   
+    for (let i = 0; i < iterations; i++) {
+      let colors = Pallettes[Math.min(i, diceQuant-1)];
+      // Generate random width and height for the bar
+      let width = Math.min(lastWidth, canvas.width);
+      let height = Math.min(lastHeight, canvas.height)/(i+1);
+  
+      // Set x to 0 and y to a random value
+      let x = 0;
+      let y = 1/diceArray[i] * (canvas.height - height);
+  
+      console.log("lastX: ", lastWidth);
+      console.log("lastY: ", lastHeight);
+  
+      lastHeight += height;
+      lastWidth += width;
+      ctx.globalCompositeOperation = blendModes[Math.floor(prngno)];
+      console.log(colors);
+      ctx.fillStyle = colors[Math.min((Math.floor(prngno * 5) + 1), palletteDepth)];
+      // Draw a vertical bar
+      ctx.fillRect(x, y, width, canvas.height);
+      // Rotate the canvas by ProportionChance[i]
+      ctx.rotate(ProportionChance[i]);
+    }
+  }
+    
 
 function colorCanvasAngled() {
   for (let i = 0; i < (iterations/2); i++) {
@@ -256,21 +289,22 @@ function colorCanvasAngled() {
     AngledData.push(`\nAngled Outer iteration [${[i]}], ProportionChance[i]: ${ProportionChance[i]}, totalPercentage: ${totalPercentage}, angle: ${angle}`);
     const segmentHeight = canvas.width / totalPercentage;
     for (let i = 0; i < 3; i++) {
-      const colors = Pallettes[i];
+      const colors = Pallettes[Math.min(i, Pallettes.length-1)];
       const angle = (ProportionChance[i] / totalPercentage) * 360;
       AngledData.push(`\nAngled Inner iteration [${[i]}], angle: ${angle} \n colors: ${colors}`)
       ctx.globalCompositeOperation = blendMode;
       let usedInnerColors = [];
-      const color = colors[Math.min(Math.floor(noZero(prngno) * colors.length), colors.length - 1)];
+      const color = colors[Math.floor(prngno * colors.length)];
       console.log(color);
       usedInnerColors.push(color);
       for (let y = 0; y < canvas.height; y++) {
         for(let x = 0; x < canvas.width; x++) {
+          if (x % 2 == 0){
         //for (let x = i * canvas.width; x < (i + 1) * canvas.width; x++) {
           ctx.rotate(angle);
           ctx.fillStyle = color;
-          ctx.fillRect(x, y, 3, 3);
-        }
+          ctx.fillRect(x, y, i, i);
+        }}
       }
       ctx.rotate(-angle);
     usedColors.push(`\n Inner iterations usedInnerColors: ${usedInnerColors}`);
@@ -413,7 +447,7 @@ function draw(  ) {
   console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance,"iterations: ", iterations, "Pallettes:", Pallettes, "blendMode:", blendMode);
 
   console.time("drawing");
-  colorCanvas(ctx, Pallettes, ProportionChance, blendMode);
+  colorCanvasNew(ctx, Pallettes, ProportionChance, blendMode);
 
   let filename1 = `${startTime} - ${fxhash} - ${noZero(prngno)}`
   downloadCanvas(filename1)
