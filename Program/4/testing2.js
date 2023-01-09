@@ -9,8 +9,8 @@
   const formattedDate = `${year}/${month}/${day} | ${hours}:${minutes}`;
   const startTime = formattedDate;
   const canvas = document.getElementById("canvas");
-  canvas.width = 5;  // 4K resolution
-  canvas.height = 5;
+  canvas.width = 3840;  // 4K resolution
+  canvas.height = 2160;
   const ctx = canvas.getContext("2d");
   
   let prngno = fxrand();
@@ -242,6 +242,55 @@ function noZero(prngno) {
     return ENDTime;
   }
 
+  function colorCanvasNew() {
+    // Pick a random entry in Pallettes
+    let colors = Pallettes[Math.floor(prngno * Pallettes.length)];
+    console.log(colors);
+
+    // Iterate through the colors array
+    for (let i = 0; i < colors.length; i++) {
+    // Set initial x and y to random values
+    let width = Math.floor((prngno*[i]) * canvas.width);
+    let height = Math.floor((prngno*[i]) * canvas.height);
+    
+    // Set initial width and height to random values
+    let x = Math.floor((prngno*[i]) * (canvas.width - width));
+    let y = Math.floor((prngno*[i]) * (canvas.height - height));
+    
+  // Limit the x coordinate to the maximum dimensions of the canvas
+  x = Math.abs(Math.min(x, canvas.width - width));
+  // Limit the y coordinate to the maximum dimensions of the canvas
+  y = Math.abs(Math.min(y, canvas.height - height));
+  // Limit the width to the maximum dimensions of the canvas
+  width = Math.abs(Math.min(width, canvas.width));
+  // Limit the height to the maximum dimensions of the canvas
+  height = Math.abs(Math.min(height, canvas.height));
+
+    // Set the rotation to a random value
+    let rotation = prngno * 360;
+      // Create a linear gradient with the current color and transparent black
+      let gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, colors[i]);
+      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+      
+      // Set the fill style to the gradient
+      ctx.fillStyle = gradient;
+      // Translate the canvas to the center of the rectangle
+      ctx.translate(x + width / 2, y + height / 2);
+      // Rotate the canvas by the specified rotation
+      ctx.rotate(rotation);
+      // Draw a rectangle on the canvas using the gradient
+      ctx.fillRect(-width / 2, -height / 2, width, height);
+      // Reset the canvas transformation
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      console.log(x,y,width,height,rotation);
+
+      console.log(colors[i]);
+    }
+  }
+
+
+  
 
   
 
@@ -276,18 +325,103 @@ function colorCanvasAngled() {
   }
 
   function draw() {
-    for (let i = 0; i < 5; i++) {
-      console.log("colorCanvasAngled start: ", i)
-      colorCanvasAngled();
-      console.log("fin.")
-    }
-    console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
+   // for (let i = 0; i < 5; i++) {
+   //   console.log("colorCanvasAngled start: ", i)
+   //   colorCanvasAngled();
+   //   console.log("fin.")
+   // }
+   colorCanvasNew();
+   console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
     let filename = `${startTime} - ${fxhash}`
-    downloadCanvas(filename);
-    downloadMetadata(filename);
+   // downloadCanvas(filename);
+   // downloadMetadata(filename);
   }
     
   
   
   
-    draw();
+   draw();
+
+
+/*
+ v = [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${
+      (H * Y) | 0
+    } ${H}" width="${h * Y}mm" height="${h}mm">\n<!-` +
+      `- ` +
+      Date(),
+    new U(O),
+    ,
+    `fxhash='${fxhash}';(code=${code})()\n-` + `->`,
+    O.bg > 0
+      ? `<rect x="${-H * Y}" y="${-H}" width="${H * Y * 3}" height="${
+          H * 3
+        }" fill="#ffffff"/>`
+      : ``,
+    `<g fill="none" stroke="#000000" stroke-width="${(LW * H).toFixed(
+      4
+    )}" stroke-linecap="round">`,
+  ];
+
+
+   function colorCanvasNew(ctx, Pallettes, ProportionChance, blendMode) {
+    const totalPercentage = ProportionChance.reduce((sum, percentage) => {
+      return sum + parseInt(percentage);
+    }, 0);
+    //const segmentSize = Math.max(canvas.width, canvas.height) / totalPercentage; 
+    let lastWidth = Math.min((canvas.width / totalPercentage) * parseInt(ProportionChance[0]), canvas.width);
+    let lastHeight = Math.min((canvas.height / totalPercentage) * parseInt(ProportionChance[0]), canvas.height);
+    let a = nozeroArray(prngno);
+  
+    for (let i = 0; i < iterations; i++) {
+      let colors = Math.min(Pallettes[i], diceQuant);
+      // Generate random width and height for the bar
+      let width = Math.min(lastWidth, canvas.width);
+      let height = Math.min(lastHeight, canvas.height)/(i+1);
+  
+      // Set x to 0 and y to a random value
+      let x = 0;
+      let y = 1/diceArray[i] * (canvas.height - height);
+  
+      console.log("lastX: ", lastWidth);
+      console.log("lastY: ", lastHeight);
+  
+      lastHeight += height;
+      lastWidth += width;
+      ctx.globalCompositeOperation = blendModes[Math.floor(prngno)];
+      console.log(colors);   
+      ctx.fillStyle = colors[Math.min((Math.floor(prngno * 5) + 1), palletteDepth)];
+      // Draw a vertical bar
+      ctx.fillRect(x, y, width, canvas.height);
+      // Rotate the canvas by ProportionChance[i]
+      ctx.rotate(ProportionChance[i]);
+    }
+  }
+
+
+
+
+
+              v.push(
+              `<path d="M ${SY(qq, 1 / H).map(
+                ([x, y]) => (
+                  (x += M),
+                  (y += 0.5),
+                  C.lineTo(x * ch, y * ch),
+                  [(x * H) | 0, (y * H) | 0]
+                )
+              ).join` `}"/>`
+            ) %
+              24 <
+            1
+          )
+            yield;
+          C.stroke();
+        }
+      }
+    }
+    v.push`</g></svg>`;
+    (im = new Image()).src =
+      `data:image/svg+xml,` + encodeURIComponent(v.join`\n`);
+    im.decode().then((_) => {
+      B.replaceChildren(im);
