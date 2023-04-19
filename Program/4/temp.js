@@ -1,5 +1,24 @@
   // the program
 
+  const canvas = document.getElementById("canvas");
+  canvas.width = 3840;  // 4K resolution
+  canvas.height = 2160;
+  const ctx = canvas.getContext("2d");
+  let prngno = fxrand();
+  const diceQuant = noZero(prngno);
+  const Phrases = getPhrases("kjv.txt", diceQuant);  
+  const Pallettes = [];
+  let palletteDepth = 3;
+  const ProportionChance = getStringLengths(Phrases);
+  const blendModes = ['color-dodge', 'color-burn', 'hard-light', 'soft-light'];
+  const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
+  Phrases.forEach(phrase => {
+  const hexColors = sentenceToHexColors(phrase);
+  const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
+  Pallettes.push(shortenedColors);
+  });
+
+
 function noZero(prngno) {
   const parts = String(prngno).split('.');
   const digits = parts[1] ? parts[1].split('') : [];
@@ -252,23 +271,7 @@ function downloadCanvas(fileName, prngno, Phrases, diceQuant, ProportionChance, 
     statusMessage = 'Canvas drawing complete';
   }
   
-  const canvas = document.getElementById("canvas");
-  canvas.width = 3840;  // 4K resolution
-  canvas.height = 2160;
-  const ctx = canvas.getContext("2d");
-  let prngno = fxrand();
-  const diceQuant = noZero(prngno);
-  const Phrases = getPhrases("kjv.txt", diceQuant);  
-  const Pallettes = [];
-  let palletteDepth = 3;
-  const ProportionChance = getStringLengths(Phrases);
-  const blendModes = ['color-dodge', 'color-burn', 'hard-light', 'soft-light'];
-  const blendMode = blendModes[Math.floor(prngno * blendModes.length)];
-  Phrases.forEach(phrase => {
-  const hexColors = sentenceToHexColors(phrase);
-  const shortenedColors = getRandomColors(hexColors, palletteDepth);  // <--- colour pallette depth
-  Pallettes.push(shortenedColors);
-  });
+
   draw(ctx, Pallettes, ProportionChance, blendMode);
  // console.log("fxhash():", prngno, "Phrases:", Phrases, "dice no.:", diceQuant, "ProportionChance:", ProportionChance, "Pallettes:", Pallettes, "blendMode:", blendMode);
   

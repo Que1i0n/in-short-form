@@ -1,5 +1,5 @@
 ﻿#Persistent
-SetTimer, CheckConsole, 7700
+SetTimer, CheckConsole, 10700
 
 CheckConsole:
 {
